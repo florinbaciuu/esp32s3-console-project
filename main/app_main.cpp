@@ -157,8 +157,6 @@ void printRamInfoatBoot(void);
 // #define MOUNT_PATH   "/data"
 #define MOUNT_PATH   "/sdcard"
 
-
-
 static void initialize_filesystem_sdmmc(void) {
   esp_vfs_fat_mount_config_t mount_config = {
     .format_if_mount_failed = false, .max_files = 4, .allocation_unit_size = 16 * 1024, .disk_status_check_enable = false, .use_one_fat = false

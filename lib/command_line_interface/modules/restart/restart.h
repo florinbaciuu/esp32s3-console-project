@@ -1,15 +1,15 @@
 #pragma once
 
 
-#ifndef VERSION_H_
-#define VERSION_H_
+#ifndef RESTART_H
+#define RESTART_H
 
 
 #ifdef __cplusplus
 extern "C" {
 #endif /* #ifdef __cplusplus */
 
-void cli_register_version_command(void);
+void cli_register_restart_command(void);
 
 
 #ifdef __cplusplus

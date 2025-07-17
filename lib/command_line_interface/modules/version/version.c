@@ -16,7 +16,7 @@
 
 #include "version.h"
 
-static const char *TAG = "cmd_resmon";
+static const char *TAG = "cli_version";
 
 //===========================================================
 //===========================================================
@@ -95,7 +95,7 @@ static void register_version(void)
 ** Asta e functia principala de inregistrare a comenzilor
 ** pentru CLI-ul de versiune.
 */
-void cli_register_version_commands(void)
+void cli_register_version_command(void)
 {
     register_version(); // Register the 'version' command
 }
