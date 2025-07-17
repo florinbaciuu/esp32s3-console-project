@@ -1,6 +1,9 @@
 # 📘 Ghid Git personal – by florinbaciuu (a.k.a. The One)
 
-https://github.com/florinbaciuu/esp32s3-console-project.git
+https://github.com/florinbaciuu/lilygo-thmi-esp-idf-project.git
+
+
+https://gitlab.com/florinbaciuu/lilygo-thmi-esp-idf-project.git
 
 
 ## Configurare Git globală (doar o dată pe sistem)
@@ -64,8 +67,9 @@ git remote remove nume_remote
 
 ## Adaugă remote-ul : (GITHUB) and (GITLAB) in functie de necesitati
 ```
-git remote add origin https://github.com/florinbaciuu/esp32s3-console-project.git
-git remote add github https://github.com/florinbaciuu/esp32s3-console-project.git
+git remote add origin https://github.com/florinbaciuu/lilygo-thmi-esp-idf-project.git
+git remote add github https://github.com/florinbaciuu/lilygo-thmi-esp-idf-project.git
+git remote add gitlab https://gitlab.com/florinbaciuu/lilygo-thmi-esp-idf-project.git
 
 ```
 ---
@@ -81,7 +85,7 @@ git remote
 ## Adăugare, verificare și ștergere submodul Git (ex: o librărie în lib/)
 
 ```
-git submodule add https://github.com/florinbaciuu/ESP32_Resource_Monitor.git lib/ESP32_Resource_Monitor
+git branch -M main
 git submodule status                  # Afișează commiturile și starea submodulelor
 git config -f .gitmodules --list     # Verifică ce submodule sunt înregistrate oficial
 cat .gitmodules                      # Afișează configurația direct
@@ -131,7 +135,7 @@ git push                                                          # Trimite schi
 ## Clonare cu tot cu submodule
 
 ```
-git clone --recurse-submodules https://github.com/florinbaciuu/esp32s3-console-project.git
+git clone --recurse-submodules https://github.com/florinbaciuu/lilygo-thmi-esp-idf-project
 git submodule status
 git submodule update --init --recursive
 ```

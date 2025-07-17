@@ -119,7 +119,7 @@ extern "C" {
 #include "sdmmc_cmd.h"
 #include "cmd_system.h"
 
-#include "cmd_resmon.h"
+#include "command_line_interface.h"
 }
 
 /**********************
@@ -727,7 +727,7 @@ extern "C" void app_main(void) {
   esp_console_register_help_command();
   //register_system_common();
 
-  register_all_commands(); // my command
+  cli_register_all_commands(); // my command
 
   boot_count++;
   ESP_LOGI("RTC", "Boot count (from RTC RAM): %lu", boot_count);

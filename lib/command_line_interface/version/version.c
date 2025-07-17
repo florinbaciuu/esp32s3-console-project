@@ -1,5 +1,24 @@
-#pragma once
 
+
+#include <stdio.h>
+#include <string.h>
+#include <ctype.h>
+#include <inttypes.h>
+#include "esp_log.h"
+#include "esp_console.h"
+#include "esp_chip_info.h"
+#include "esp_flash.h"
+#include "argtable3/argtable3.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+#include "sdkconfig.h"
+
+
+#include "version.h"
+
+static const char *TAG = "cmd_resmon";
+
+//===========================================================
 //===========================================================
 /* 'version' command */
 static int get_version(int argc, char **argv)
@@ -68,4 +87,15 @@ static void register_version(void)
         .func = &get_version,
     };
     ESP_ERROR_CHECK( esp_console_cmd_register(&cmd) );
+}
+
+// -------------------
+
+/*
+** Asta e functia principala de inregistrare a comenzilor
+** pentru CLI-ul de versiune.
+*/
+void cli_register_version_commands(void)
+{
+    register_version(); // Register the 'version' command
 }

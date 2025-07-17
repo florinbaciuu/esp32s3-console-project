@@ -1,12 +1,10 @@
-##My personal project
-###The device(board)used is Lilygo T HHMI S3 with 16 MB Flash and 8 MB PSRAM.
+### My personal project
 
 ```
 https://github.com/florinbaciuu/esp32s3-console-project.git
 ```
 ---
 
-### My personal project
 ### The device(board)used is Lilygo T HHMI S3 with 16 MB Flash and 8 MB PSRAM.
 
 ---

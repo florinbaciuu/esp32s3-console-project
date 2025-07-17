@@ -1,19 +1,19 @@
 #pragma once
 
 
-#ifndef CMD_RESMON_H
-#define CMD_RESMON_H
+#ifndef VERSION_H_
+#define VERSION_H_
 
 
 #ifdef __cplusplus
 extern "C" {
 #endif /* #ifdef __cplusplus */
 
-void register_all_commands(void);
+void cli_register_version_commands(void);
 
 
 #ifdef __cplusplus
 }
 #endif /* #ifdef __cplusplus */
 
-#endif /* #ifndef LV_CONF_H */
+#endif  /* #ifndef VERSION_H_ */

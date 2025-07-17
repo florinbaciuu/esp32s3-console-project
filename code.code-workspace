@@ -231,7 +231,8 @@
 			"ulp_lp_core_critical_section_shared.h": "c",
 			"ulp_lp_core.h": "c",
 			"console_settings.h": "c",
-			"string.h": "c"
+			"string.h": "c",
+			"cmd_system.h": "c"
 		},
 		//------------------------------------------------------------------
 		"accessibility.underlineLinks": true,
