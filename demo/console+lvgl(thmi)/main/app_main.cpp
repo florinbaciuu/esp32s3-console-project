@@ -117,7 +117,6 @@ extern "C" {
 #include "nvs_flash.h"
 #include "soc/soc_caps.h"
 #include "sdmmc_cmd.h"
-#include "cmd_system.h"
 
 #include "command_line_interface.h"
 }
@@ -145,17 +144,9 @@ void printRamInfoatBoot(void);
 #define SD_FREQ_DEFAULT   20000 /*!< SD/MMC Default speed (limited by clock divider) */
 #define SD_FREQ_HIGHSPEED 40000 /*!< SD High speed (limited by clock divider) */
 
-#define CONSOLE_MAX_CMDLINE_ARGS   8
-#define CONSOLE_MAX_CMDLINE_LENGTH 256
-#define CONSOLE_PROMPT_MAX_LEN     (32)
 
-#define CONFIG_CONSOLE_STORE_HISTORY      1
-#define CONFIG_CONSOLE_IGNORE_EMPTY_LINES 1
-#define PROMPT_STR                        CONFIG_IDF_TARGET
 
-void initialize_console_peripheral(void);
-void initialize_console_library(const char *history_path);
-char *setup_prompt(const char *prompt_str);
+
 
 /* Console command history can be stored to and loaded from a file.
  * The easiest way to do this is to use FATFS filesystem on top of
@@ -165,9 +156,6 @@ char *setup_prompt(const char *prompt_str);
 
 // #define MOUNT_PATH   "/data"
 #define MOUNT_PATH   "/sdcard"
-#define HISTORY_PATH MOUNT_PATH "/history.txt"
-
-char prompt[CONSOLE_PROMPT_MAX_LEN];
 
 static void initialize_filesystem_sdmmc(void) {
   esp_vfs_fat_mount_config_t mount_config = {
@@ -215,105 +203,10 @@ static void initialize_nvs(void) {
   ESP_ERROR_CHECK(err);
 }
 
-void initialize_console_peripheral(void) {
-  /* Drain stdout before reconfiguring it */
-  fflush(stdout);
-  fsync(fileno(stdout));
 
-#if defined(CONFIG_ESP_CONSOLE_USB_SERIAL_JTAG)
-  /* Minicom, screen, idf_monitor send CR when ENTER key is pressed */
-  usb_serial_jtag_vfs_set_rx_line_endings(ESP_LINE_ENDINGS_CR);
-  /* Move the caret to the beginning of the next line on '\n' */
-  usb_serial_jtag_vfs_set_tx_line_endings(ESP_LINE_ENDINGS_CRLF);
 
-  /* Enable blocking mode on stdin and stdout */
-  fcntl(fileno(stdout), F_SETFL, 0);
-  fcntl(fileno(stdin), F_SETFL, 0);
 
-  usb_serial_jtag_driver_config_t jtag_config = {
-    .tx_buffer_size = 256,
-    .rx_buffer_size = 256,
-  };
 
-  /* Install USB-SERIAL-JTAG driver for interrupt-driven reads and writes */
-  ESP_ERROR_CHECK(usb_serial_jtag_driver_install(&jtag_config));
-
-  /* Tell vfs to use usb-serial-jtag driver */
-  usb_serial_jtag_vfs_use_driver();
-
-#else
-#error Unsupported console type
-#endif
-
-  /* Disable buffering on stdin */
-  setvbuf(stdin, NULL, _IONBF, 0);
-}
-
-#define MY_ESP_CONSOLE_CONFIG_DEFAULT() \
-  {.max_cmdline_length = 256, .max_cmdline_args = 32, .heap_alloc_caps = MALLOC_CAP_DEFAULT, .hint_color = 39, .hint_bold = 0}
-
-void initialize_console_library(const char *history_path) {
-  /* Initialize the console */
-  esp_console_config_t console_config = {
-    .max_cmdline_length = CONSOLE_MAX_CMDLINE_LENGTH,
-    .max_cmdline_args = CONSOLE_MAX_CMDLINE_ARGS,
-    .heap_alloc_caps = 4096,
-#if CONFIG_LOG_COLORS
-    .hint_color = atoi(LOG_COLOR_CYAN),
-#endif
-    .hint_bold = 1,
-  };
-  ESP_ERROR_CHECK(esp_console_init(&console_config));
-
-  /* Configure linenoise line completion library */
-  /* Enable multiline editing. If not set, long commands will scroll within
-     * single line.
-     */
-  linenoiseSetMultiLine(1);
-
-  /* Tell linenoise where to get command completions and hints */
-  linenoiseSetCompletionCallback(&esp_console_get_completion);
-  linenoiseSetHintsCallback((linenoiseHintsCallback *)&esp_console_get_hint);
-
-  /* Set command history size */
-  linenoiseHistorySetMaxLen(100);
-
-  /* Set command maximum length */
-  linenoiseSetMaxLineLen(console_config.max_cmdline_length);
-
-  /* Don't return empty lines */
-  linenoiseAllowEmpty(false);
-
-#if CONFIG_CONSOLE_STORE_HISTORY
-  /* Load command history from filesystem */
-  linenoiseHistoryLoad(history_path);
-#endif  // CONFIG_CONSOLE_STORE_HISTORY
-
-  /* Figure out if the terminal supports escape sequences */
-  const int probe_status = linenoiseProbe();
-  if (probe_status) { /* zero indicates success */
-    linenoiseSetDumbMode(1);
-  }
-}
-
-char *setup_prompt(const char *prompt_str) {
-  /* set command line prompt */
-  const char *prompt_temp = "esp>";
-  if (prompt_str) {
-    prompt_temp = prompt_str;
-  }
-  snprintf(prompt, CONSOLE_PROMPT_MAX_LEN - 1, LOG_COLOR_I "%s " LOG_RESET_COLOR, prompt_temp);
-
-  if (linenoiseIsDumbMode()) {
-#if CONFIG_LOG_COLORS
-    /* Since the terminal doesn't support escape sequences,
-         * don't use color codes in the s_prompt.
-         */
-    snprintf(prompt, CONSOLE_PROMPT_MAX_LEN - 1, "%s ", prompt_temp);
-#endif  //CONFIG_LOG_COLORS
-  }
-  return prompt;
-}
 
 // ----------------------------------------------------------
 
@@ -540,50 +433,7 @@ bool lv_port_sem_give(void) {
 }
 #endif  // (LV_TASK_NOTIFY_SIGNAL_MODE == USE_MUTEX)
 
-void console_app(void *parameter) {
-  (void)parameter;
-  while (true) {
-    char *line = linenoise(prompt);
 
-#if CONFIG_CONSOLE_IGNORE_EMPTY_LINES
-    if (line == NULL) { /* Ignore empty lines */
-      continue;
-      ;
-    }
-#else
-    if (line == NULL) { /* Break on EOF or error */
-      break;
-    }
-#endif  // CONFIG_CONSOLE_IGNORE_EMPTY_LINES
-
-    /* Add the command to the history if not empty*/
-    if (strlen(line) > 0) {
-      linenoiseHistoryAdd(line);
-#if CONFIG_CONSOLE_STORE_HISTORY
-      /* Save command history to filesystem */
-      linenoiseHistorySave(HISTORY_PATH);
-#endif  // CONFIG_CONSOLE_STORE_HISTORY
-    }
-
-    /* Try to run the command */
-    int ret;
-    esp_err_t err = esp_console_run(line, &ret);
-    if (err == ESP_ERR_NOT_FOUND) {
-      printf("Unrecognized command\n");
-    } else if (err == ESP_ERR_INVALID_ARG) {
-      // command was empty
-    } else if (err == ESP_OK && ret != ESP_OK) {
-      printf("Command returned non-zero error code: 0x%x (%s)\n", ret, esp_err_to_name(ret));
-    } else if (err != ESP_OK) {
-      printf("Internal error: %s\n", esp_err_to_name(err));
-    }
-    /* linenoise allocates line buffer on the heap, so need to free it */
-    linenoiseFree(line);
-  }
-
-  ESP_LOGE("CONSOLE", "Error or end-of-input, terminating console");
-  esp_console_deinit();
-}
 
 /********************************************** */
 /*                   TASK                       */
@@ -960,25 +810,8 @@ extern "C" void app_main(void) {
 
   printRamInfoatBoot();
 
-  printf(
-    "\n"
-    "This is an example of ESP-IDF console component.\n"
-    "Type 'help' to get the list of commands.\n"
-    "Use UP/DOWN arrows to navigate through command history.\n"
-    "Press TAB when typing command name to auto-complete.\n"
-    "Ctrl+C will terminate the console environment.\n"
-  );
-
-  if (linenoiseIsDumbMode()) {
-    printf(
-      "\n"
-      "Your terminal application does not support escape sequences.\n"
-      "Line editing and history features are disabled.\n"
-      "On Windows, try using Putty instead.\n"
-    );
-  }
-
   // start_resource_monitor();
+  StartCLI(true);
 
   xTaskCreatePinnedToCore(
     lv_main_task,                           // Functia task-ului
@@ -1000,8 +833,6 @@ extern "C" void app_main(void) {
     ((1))                                   // Nucleul pe care ruleaza (ESP32 e dual-core)
   );
 
-   
-
   xTaskCreatePinnedToCore(
     v_check_0_pin_state_task,               // Functia care ruleaza task-ul
     (const char *)"v_check_0_pin_state",    // Numele task-ului
@@ -1012,15 +843,7 @@ extern "C" void app_main(void) {
     ((1))                                   // Nucleul pe care ruleaza (ESP32 e dual-core)
   );
 
-  xTaskCreatePinnedToCore(
-    console_app,                            // Functia care ruleaza task-ul
-    (const char *)"Console",                // Numele task-ului
-    (uint32_t)(10000),                      // Dimensiunea stack-ului
-    (NULL),                                 // Parametri
-    (UBaseType_t)configMAX_PRIORITIES - 6,  // Prioritatea task-ului
-    &xHandle_v_check_0_pin_state_task,      // Handle-ul task-ului
-    ((1))                                   // Nucleul pe care ruleaza (ESP32 e dual-core)
-  );
+  
 }  // app_main
 
 /********************************************** */

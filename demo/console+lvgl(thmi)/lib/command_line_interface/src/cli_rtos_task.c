@@ -22,32 +22,13 @@ void printStartupMessage()
     }
 }
 
-void rtos_init_cli(){
-    /* Initialize console output periheral (UART, USB_OTG, USB_JTAG) */
-  initialize_console_peripheral();
-
-  /* Initialize linenoise library and esp_console*/
-  initialize_console_library(HISTORY_PATH);
-
-  /* Prompt to be printed before each line.
-     * This can be customized, made dynamic, etc.
-     */
-  const char *prompt = setup_prompt(PROMPT_STR ">");
-
-  /* Register commands */
-  esp_console_register_help_command();
-  //register_system_common();
-
-  cli_register_all_commands(); // my command
-}
-
 /********************************************** */
 /*                   TASK                       */
 /********************************************** */
 void console_app(void *parameter)
 {
     (void)parameter;
-    rtos_init_cli();
+
     printStartupMessage();
 
     while (true)

@@ -232,7 +232,9 @@
 			"ulp_lp_core.h": "c",
 			"console_settings.h": "c",
 			"string.h": "c",
-			"cmd_system.h": "c"
+			"cmd_system.h": "c",
+			"config.h": "c",
+			"command_line_interface.h": "c"
 		},
 		//------------------------------------------------------------------
 		"accessibility.underlineLinks": true,

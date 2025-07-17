@@ -1,7 +1,5 @@
 
 #include "command_line_interface.h"
-#include "init.h"
-#include "config.h"
 
 char prompt[CONSOLE_PROMPT_MAX_LEN];
 // ------------------------------------
