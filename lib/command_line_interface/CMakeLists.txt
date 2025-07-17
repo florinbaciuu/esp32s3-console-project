@@ -7,10 +7,18 @@ set(version_includes "modules/version")
 set(restart_srcs "modules/restart/restart.c")
 set(restart_includes "modules/restart")
 
+# Se adauga task info
+set(tasks_srcs "modules/tasks_nfo/tasks_nfo.c")
+set(tasks_includes "modules/tasks_nfo")
+
+# Se adauga RAM info
+set(ram_info_srcs "modules/ram_nfo/ram_nfo.c")
+set(ram_info_includes "modules/ram_nfo")
+
 idf_component_register(
-    SRCS "command_line_interface.c" "init.c" "cli_rtos_task.c" ${version_srcs} ${restart_srcs}
-    INCLUDE_DIRS "." ${version_includes} ${restart_includes}
-    PRIV_INCLUDE_DIRS ${version_includes} ${restart_includes}
+    SRCS "src/command_line_interface.c" "src/init.c" "src/cli_rtos_task.c" ${version_srcs} ${restart_srcs} ${tasks_srcs} ${ram_info_srcs}
+    INCLUDE_DIRS "." "include" ${version_includes} ${restart_includes} ${tasks_includes} ${ram_info_includes}
+    PRIV_INCLUDE_DIRS ${version_includes} ${restart_includes} ${tasks_includes} ${ram_info_includes}
     REQUIRES driver freertos esp_timer console esp_hw_support spi_flash
 )
 

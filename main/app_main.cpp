@@ -810,24 +810,6 @@ extern "C" void app_main(void) {
 
   printRamInfoatBoot();
 
-  printf(
-    "\n"
-    "This is an example of ESP-IDF console component.\n"
-    "Type 'help' to get the list of commands.\n"
-    "Use UP/DOWN arrows to navigate through command history.\n"
-    "Press TAB when typing command name to auto-complete.\n"
-    "Ctrl+C will terminate the console environment.\n"
-  );
-
-  if (linenoiseIsDumbMode()) {
-    printf(
-      "\n"
-      "Your terminal application does not support escape sequences.\n"
-      "Line editing and history features are disabled.\n"
-      "On Windows, try using Putty instead.\n"
-    );
-  }
-
   // start_resource_monitor();
   StartCLI(true);
 
