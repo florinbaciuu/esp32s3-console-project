@@ -15,10 +15,23 @@ set(tasks_includes "modules/tasks_nfo")
 set(ram_info_srcs "modules/ram_nfo/ram_nfo.c")
 set(ram_info_includes "modules/ram_nfo")
 
+# Se adauga bootloader info
+set(bootloader_info_srcs "modules/bootloader_nfo/bootloader_nfo.c")
+set(bootloader_info_includes "modules/bootloader_nfo")
+
+# ------------------------------- #
+
+# Aduna toate modulele intr-un singur
+set(modules_srcs ${version_srcs} ${restart_srcs} ${tasks_srcs} ${ram_info_srcs} ${bootloader_info_srcs})
+set(modules_includes ${version_includes} ${restart_includes} ${tasks_includes} ${ram_info_includes} ${bootloader_info_includes})
+set(modules_priv_includes ${version_includes} ${restart_includes} ${tasks_includes} ${ram_info_includes} ${bootloader_info_includes})
+
+# ------------------------------- #
+
 idf_component_register(
-    SRCS "src/command_line_interface.c" "src/init.c" "src/cli_rtos_task.c" ${version_srcs} ${restart_srcs} ${tasks_srcs} ${ram_info_srcs}
-    INCLUDE_DIRS "." "include" ${version_includes} ${restart_includes} ${tasks_includes} ${ram_info_includes}
-    PRIV_INCLUDE_DIRS ${version_includes} ${restart_includes} ${tasks_includes} ${ram_info_includes}
+    SRCS "src/command_line_interface.c" "src/init.c" "src/cli_rtos_task.c" ${modules_srcs}
+    INCLUDE_DIRS "." "include" ${modules_includes}
+    PRIV_INCLUDE_DIRS ${modules_priv_includes}
     REQUIRES driver freertos esp_timer console esp_hw_support spi_flash
 )
 

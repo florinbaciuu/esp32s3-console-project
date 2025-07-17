@@ -234,7 +234,9 @@
 			"string.h": "c",
 			"cmd_system.h": "c",
 			"config.h": "c",
-			"command_line_interface.h": "c"
+			"command_line_interface.h": "c",
+			"ram_nfo.h": "c",
+			"bootloader_nfo.h": "c"
 		},
 		//------------------------------------------------------------------
 		"accessibility.underlineLinks": true,
