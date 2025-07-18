@@ -11,3 +11,4 @@ void printCPUInfo(void);
 void printInfoAboutMemory(void);
 void print_esp_timers(void);
 void printVersion();
+void printTasksInfo();

@@ -9,9 +9,6 @@ set(restart_includes "modules/restart")
 set(tasks_srcs "modules/tasks_nfo/tasks_nfo.c")
 set(tasks_includes "modules/tasks_nfo")
 
-# Se adauga RAM info
-set(ram_info_srcs "modules/ram_nfo/ram_nfo.c")
-set(ram_info_includes "modules/ram_nfo")
 
 # Se adauga uptime
 set(uptime_srcs "modules/uptime/uptime.c")
@@ -24,9 +21,9 @@ set(info_includes "modules/info")
 # ------------------------------ #
 
 # Aduna toate modulele intr-un singur
-set(modules_srcs  ${restart_srcs} ${tasks_srcs} ${ram_info_srcs} ${uptime_srcs} ${info_srcs})
-set(modules_includes  ${restart_includes} ${tasks_includes} ${ram_info_includes} ${uptime_includes} ${info_includes})
-set(modules_priv_includes  ${restart_includes} ${tasks_includes} ${ram_info_includes} ${uptime_includes} ${info_includes})
+set(modules_srcs  ${restart_srcs} ${tasks_srcs}  ${uptime_srcs} ${info_srcs})
+set(modules_includes  ${restart_includes} ${tasks_includes}  ${uptime_includes} ${info_includes})
+set(modules_priv_includes  ${restart_includes} ${tasks_includes}  ${uptime_includes} ${info_includes})
 
 # ------------------------------- #
 

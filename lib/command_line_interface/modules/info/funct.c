@@ -29,6 +29,8 @@ static const char *TAG = "CLI INFO";
 
 // -------------------------------
 
+// SYS //
+
 void printSysInfo()
 {
     esp_chip_info_t chip_info;
@@ -42,6 +44,8 @@ void printSysInfo()
 
 // -------------------------------
 
+// FLASH //
+
 void printFlashInfo()
 {
     uint32_t flash_size;
@@ -52,6 +56,8 @@ void printFlashInfo()
 
 // -------------------------------
 
+// CPU //
+
 void printCPUInfo()
 {
     printf("CPU Info:de implemtentat\n"); // TODO: Implement alternative for IDF v5.4.2
@@ -59,6 +65,8 @@ void printCPUInfo()
 }
 
 // -------------------------------
+
+// MEMORY //
 
 #define BYTES_TO_KB(x) ((float)(x) / 1024.0f)
 #define PERC(used, total) ((total) > 0 ? ((float)(used) / (float)(total)) * 100.0f : 0.0f)
@@ -129,6 +137,8 @@ void printInfoAboutMemory()
 
 // -------------------------------
 
+// TIMERS //
+
 void print_esp_timers()
 {
 #if (CONFIG_DEBUG_ESP_TIMERS == 1)
@@ -142,6 +152,9 @@ void print_esp_timers()
 }
 
 // -------------------------------
+
+// VERSION //
+
 void get_version(int argc, char **argv)
 {
     const char *model;
@@ -207,4 +220,59 @@ void printVersion()
     get_version(0, NULL); // sau orice vrei să trimiți
     return;
 }
+// -------------------------------
+
+// UPTIME //
+
+static int uptime_command(int argc, char **argv)
+{
+    int64_t uptime_us = esp_timer_get_time();
+    int64_t uptime_s = uptime_us / 1000000;
+
+    int days = uptime_s / (24 * 3600);
+    uptime_s %= (24 * 3600);
+    int hours = uptime_s / 3600;
+    uptime_s %= 3600;
+    int minutes = uptime_s / 60;
+    int seconds = uptime_s % 60;
+
+    printf("Uptime: %d days, %02d:%02d:%02d\n", days, hours, minutes, seconds);
+    return 0;
+}
+
+void printUptime()
+{
+    uptime_command(0, NULL);
+    return;
+}
+
+// -------------------------------
+
+// tasks // 
+
+static int tasks_info(int argc, char **argv)
+{
+    const size_t bytes_per_task = 40; /* see vTaskList description */
+    char *task_list_buffer = malloc(uxTaskGetNumberOfTasks() * bytes_per_task);
+    if (task_list_buffer == NULL) {
+        ESP_LOGE(TAG, "failed to allocate buffer for vTaskList output");
+        return 1;
+    }
+    fputs("Task Name\tStatus\tPrio\tHWM\tTask#", stdout);
+#ifdef CONFIG_FREERTOS_VTASKLIST_INCLUDE_COREID
+    fputs("\tAffinity", stdout);
+#endif
+    fputs("\n", stdout);
+    vTaskList(task_list_buffer);
+    fputs(task_list_buffer, stdout);
+    free(task_list_buffer);
+    return 0;
+}
+
+
+void printTasksInfo(){
+    tasks_info(0, NULL);
+}
+
+
 // -------------------------------
