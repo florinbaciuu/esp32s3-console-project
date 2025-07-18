@@ -9,7 +9,7 @@
 extern "C" {
 #endif /* #ifdef __cplusplus */
 
-void cli_register_ram_info_command(void);
+void cli_register_ram_info_command(void);  // ← corect, nu bootloader
 
 
 #ifdef __cplusplus

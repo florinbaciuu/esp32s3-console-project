@@ -236,7 +236,9 @@
 			"config.h": "c",
 			"command_line_interface.h": "c",
 			"ram_nfo.h": "c",
-			"bootloader_nfo.h": "c"
+			"bootloader_nfo.h": "c",
+			"uptime.h": "c",
+			"custom_help.h": "c"
 		},
 		//------------------------------------------------------------------
 		"accessibility.underlineLinks": true,
