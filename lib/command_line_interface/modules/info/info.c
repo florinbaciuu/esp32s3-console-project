@@ -21,7 +21,7 @@ static struct
     struct arg_str *subcommand;
     struct arg_lit *list; // <-- opțiunea nouă
     struct arg_lit *help; // ⬅️ NOU
-    struct arg_end *end;
+    struct arg_end *end;  
 } info_args;
 
 // -------------------------------
