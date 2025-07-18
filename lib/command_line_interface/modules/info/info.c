@@ -50,11 +50,11 @@ static int info_command(int argc, char **argv)
     }
     else if (strcmp(subcmd, "cpu") == 0)
     {
-        printf("CPU Info:de implemtentat\n");
+        printf("CPU Info:de implemtentat\n"); // TODO: Implement alternative for IDF v5.4.2
     }
     else if (strcmp(subcmd, "psram") == 0)
     {
-        printf("PSRAM Info:de implemtentat\n");
+        printf("PSRAM Info:de implemtentat\n"); // TODO: Implement alternative for IDF v5.4.2
     }
     else if (strcmp(subcmd, "ram") == 0)
     {
