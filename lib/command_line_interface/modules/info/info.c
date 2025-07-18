@@ -20,6 +20,7 @@ static struct
 {
     struct arg_str *subcommand;
     struct arg_lit *list; // <-- opțiunea nouă
+    struct arg_lit *help; // ⬅️ NOU
     struct arg_end *end;
 } info_args;
 
@@ -39,7 +40,7 @@ static const info_command_entry_t info_cmds[] = {
     {"cpu", printCPUInfo, "Show CPU info (placeholder)"},
     {"ram", printInfoAboutMemory, "Print heap, DMA, RTC, PSRAM usage"},
     {"timers", print_esp_timers, "Dump all ESP timers info"},
-    {"version", get_version, "Display firmware/IDF version info"}
+    {"version", printVersion, "Display firmware/IDF version info"},
     {"--list", printInfoCommandList, "List all available subcommands"},
 };
 
@@ -81,28 +82,51 @@ static void generate_info_cmds_help_text(void)
 static int info_command(int argc, char **argv)
 {
     int nerrors = arg_parse(argc, argv, (void **)&info_args);
-    if (info_args.list->count > 0)
+
+    // Dacă nu are niciun argument sau a cerut help global
+    if (argc == 1 || info_args.help->count > 0)
     {
-        size_t num_cmds = sizeof(info_cmds) / sizeof(info_cmds[0]);
-        printf("Available subcommands:\n");
-        for (size_t i = 0; i < num_cmds; ++i)
+        printf("╔══════════════════════════════ INFO COMMAND HELP ═════════════════════════════╗\n");
+        printf("║ Usage: info <subcommand> [--help]                                            ║\n");
+        printf("║                                                                              ║\n");
+        printf("║ Available subcommands:                                                      ║\n");
+        for (size_t i = 0; i < INFO_CMD_COUNT; i++)
         {
-            printf("  - %s\n", info_cmds[i].name);
+            printf("║   %-10s - %s\n", info_cmds[i].name, info_cmds[i].description);
         }
+        printf("║                                                                              ║\n");
+        printf("║ Use 'info <subcommand> --help' for more information.                        ║\n");
+        printf("╚══════════════════════════════════════════════════════════════════════════════╝\n");
         return 0;
     }
+
+    // Afișare listă dacă s-a cerut explicit
+    if (info_args.list->count > 0)
+    {
+        printInfoCommandList();
+        return 0;
+    }
+
     if (nerrors != 0)
     {
         arg_print_errors(stderr, info_args.end, argv[0]);
         return 1;
     }
+
+    // Verificare subcommand valid
+    if (!info_args.subcommand || info_args.subcommand->count == 0 || !info_args.subcommand->sval[0])
+    {
+        printf("No subcommand provided. Use `info --help`.\n");
+        return 1;
+    }
+
     const char *subcommand = info_args.subcommand->sval[0];
     size_t num_cmds = sizeof(info_cmds) / sizeof(info_cmds[0]);
+
     for (size_t i = 0; i < num_cmds; ++i)
     {
         if (strcmp(subcommand, info_cmds[i].name) == 0)
         {
-            // verificăm dacă a cerut help pt subcmd
             if (argc > 2 && (strcmp(argv[2], "--help") == 0 || strcmp(argv[2], "-h") == 0))
             {
                 printf("Help for '%s': %s\n", info_cmds[i].name, info_cmds[i].description);
@@ -112,10 +136,12 @@ static int info_command(int argc, char **argv)
             return 0;
         }
     }
+
     printf("Unknown subcommand: %s\n", subcommand);
     printf("Type `info --list` to see available subcommands.\n");
     return 1;
 }
+
 
 // -------------------------------
 
@@ -128,6 +154,7 @@ void cli_register_info_command(void)
         "<subcommand>",  // numele argumentului (pentru help/usage)
         info_cmds_help); // descrierea lui
     info_args.list = arg_lit0("l", "list", "List all available subcommands");
+    info_args.help = arg_lit0("h", "help", "Show help for 'info' command");
     info_args.end = arg_end(1);
 
     const esp_console_cmd_t cmd = {

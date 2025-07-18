@@ -22,6 +22,8 @@
 #include "freertos/task.h"
 #include "sdkconfig.h"
 
+#define CONFIG_APP_PROJECT_VER "0.0.1"
+
 // tagul principal
 static const char *TAG = "CLI INFO";
 
@@ -140,7 +142,7 @@ void print_esp_timers()
 }
 
 // -------------------------------
-static int get_version(int argc, char **argv)
+void get_version(int argc, char **argv)
 {
     const char *model;
     esp_chip_info_t info;
@@ -181,7 +183,7 @@ static int get_version(int argc, char **argv)
     if (esp_flash_get_size(NULL, &flash_size) != ESP_OK)
     {
         printf("Get flash size failed");
-        return 1;
+        return;
     }
     printf("IDF Version:%s\r\n", esp_get_idf_version());
     printf("Chip info:\r\n");
@@ -197,7 +199,12 @@ static int get_version(int argc, char **argv)
     printf("Firmware version: %s\n", CONFIG_APP_PROJECT_VER);
     printf("Compiled on: %s %s\n", __DATE__, __TIME__);
     printf("IDF version: %s\n", esp_get_idf_version());
-    return 0;
+    return;
 }
 
+void printVersion()
+{
+    get_version(0, NULL); // sau orice vrei să trimiți
+    return;
+}
 // -------------------------------
