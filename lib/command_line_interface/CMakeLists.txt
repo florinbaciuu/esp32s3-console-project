@@ -20,7 +20,7 @@ set(uptime_srcs "modules/uptime/uptime.c")
 set(uptime_includes "modules/uptime")
 
 # Se adauga modulul info
-set(info_srcs "modules/info/info.c")
+set(info_srcs "modules/info/info.c" "modules/info/funct.c")
 set(info_includes "modules/info")
 
 # ------------------------------ #
