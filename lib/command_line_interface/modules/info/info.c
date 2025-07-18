@@ -39,6 +39,7 @@ static const info_command_entry_t info_cmds[] = {
     {"cpu", printCPUInfo, "Show CPU info (placeholder)"},
     {"ram", printInfoAboutMemory, "Print heap, DMA, RTC, PSRAM usage"},
     {"timers", print_esp_timers, "Dump all ESP timers info"},
+    {"version", get_version, "Display firmware/IDF version info"}
     {"--list", printInfoCommandList, "List all available subcommands"},
 };
 

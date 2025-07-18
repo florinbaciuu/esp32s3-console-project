@@ -238,7 +238,8 @@
 			"ram_nfo.h": "c",
 			"bootloader_nfo.h": "c",
 			"uptime.h": "c",
-			"custom_help.h": "c"
+			"custom_help.h": "c",
+			"tasks_nfo.h": "c"
 		},
 		//------------------------------------------------------------------
 		"accessibility.underlineLinks": true,

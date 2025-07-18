@@ -1,7 +1,5 @@
 ﻿
-# Se adauga version
-set(version_srcs "modules/version/version.c")
-set(version_includes "modules/version")
+
 
 # Se adauga restart
 set(restart_srcs "modules/restart/restart.c")
@@ -26,9 +24,9 @@ set(info_includes "modules/info")
 # ------------------------------ #
 
 # Aduna toate modulele intr-un singur
-set(modules_srcs ${version_srcs} ${restart_srcs} ${tasks_srcs} ${ram_info_srcs} ${uptime_srcs} ${info_srcs})
-set(modules_includes ${version_includes} ${restart_includes} ${tasks_includes} ${ram_info_includes} ${uptime_includes} ${info_includes})
-set(modules_priv_includes ${version_includes} ${restart_includes} ${tasks_includes} ${ram_info_includes} ${uptime_includes} ${info_includes})
+set(modules_srcs  ${restart_srcs} ${tasks_srcs} ${ram_info_srcs} ${uptime_srcs} ${info_srcs})
+set(modules_includes  ${restart_includes} ${tasks_includes} ${ram_info_includes} ${uptime_includes} ${info_includes})
+set(modules_priv_includes  ${restart_includes} ${tasks_includes} ${ram_info_includes} ${uptime_includes} ${info_includes})
 
 # ------------------------------- #
 
