@@ -19,12 +19,16 @@ set(ram_info_includes "modules/ram_nfo")
 set(uptime_srcs "modules/uptime/uptime.c")
 set(uptime_includes "modules/uptime")
 
+# Se adauga modulul info
+set(info_srcs "modules/info/info.c")
+set(info_includes "modules/info")
+
 # ------------------------------ #
 
 # Aduna toate modulele intr-un singur
-set(modules_srcs ${version_srcs} ${restart_srcs} ${tasks_srcs} ${ram_info_srcs} ${uptime_srcs} )
-set(modules_includes ${version_includes} ${restart_includes} ${tasks_includes} ${ram_info_includes} ${uptime_includes} )
-set(modules_priv_includes ${version_includes} ${restart_includes} ${tasks_includes} ${ram_info_includes} ${uptime_includes} )
+set(modules_srcs ${version_srcs} ${restart_srcs} ${tasks_srcs} ${ram_info_srcs} ${uptime_srcs} ${info_srcs})
+set(modules_includes ${version_includes} ${restart_includes} ${tasks_includes} ${ram_info_includes} ${uptime_includes} ${info_includes})
+set(modules_priv_includes ${version_includes} ${restart_includes} ${tasks_includes} ${ram_info_includes} ${uptime_includes} ${info_includes})
 
 # ------------------------------- #
 
@@ -32,7 +36,7 @@ idf_component_register(
     SRCS "src/command_line_interface.c" "src/init.c" "src/config.c" ${modules_srcs}
     INCLUDE_DIRS "." "include" ${modules_includes}
     PRIV_INCLUDE_DIRS ${modules_priv_includes}
-    REQUIRES driver freertos esp_timer console esp_hw_support spi_flash
+    REQUIRES driver freertos esp_timer console esp_hw_support spi_flash esp_system heap esp_common esp_psram esp_hw_support
 )
 
 # Asta adaug-o separat:

@@ -10,6 +10,8 @@
 #include "modules/tasks_nfo/tasks_nfo.h"
 #include "modules/ram_nfo/ram_nfo.h"
 
+#include "modules/info/info.h"
+
 // -------------------------------------------------
 
 void cli_register_all_commands(void)
