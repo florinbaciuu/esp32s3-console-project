@@ -3,7 +3,7 @@
 #include "init.h"
 #include "config.h"
 
-char prompt[CONSOLE_PROMPT_MAX_LEN];
+//char prompt[CONSOLE_PROMPT_MAX_LEN];
 // ------------------------------------
 
 void initialize_console_peripheral(void)

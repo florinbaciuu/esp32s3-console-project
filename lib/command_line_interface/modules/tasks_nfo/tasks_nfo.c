@@ -6,7 +6,7 @@
 
 #include "tasks_nfo.h"
 
-static const char *TAG = "task_info";
+static const char *TAG = "cli_task_info";
 
 static int tasks_info(int argc, char **argv)
 {
@@ -36,6 +36,7 @@ static void register_tasks(void)
         .func = &tasks_info,
     };
     ESP_ERROR_CHECK( esp_console_cmd_register(&cmd) );
+    ESP_LOGI(TAG, "'%s' command registered.", cmd.command);
 }
 
 /*

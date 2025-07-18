@@ -28,6 +28,7 @@ static void register_restart(void)
         .func = &restart,
     };
     ESP_ERROR_CHECK( esp_console_cmd_register(&cmd) );
+    ESP_LOGI(TAG, "'%s' command registered.", cmd.command);
 }
 
 /*

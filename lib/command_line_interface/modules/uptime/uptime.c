@@ -1,7 +1,10 @@
 #include <stdio.h>
 #include "esp_timer.h"
 #include "esp_console.h"
+#include "esp_log.h"
 #include "uptime.h"
+
+static const char *TAG = "cli_uptime";
 
 static int uptime_command(int argc, char **argv)
 {
@@ -28,6 +31,7 @@ static void register_uptime(void)
         .func = &uptime_command,
     };
     ESP_ERROR_CHECK(esp_console_cmd_register(&cmd));
+    ESP_LOGI(TAG, "'%s' command registered.", cmd.command);
 }
 
 void cli_register_uptime_command(void)

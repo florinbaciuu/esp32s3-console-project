@@ -13,13 +13,9 @@
 #include "driver/usb_serial_jtag.h"
 #include "driver/usb_serial_jtag_vfs.h"
 
+#include "init.h"
 #include "config.h"
 
-#include "init.h"
-
-
-
-extern char prompt[CONSOLE_PROMPT_MAX_LEN]; //
 
 #define MY_ESP_CONSOLE_CONFIG_DEFAULT() \
     {.max_cmdline_length = 256, .max_cmdline_args = 32, .heap_alloc_caps = MALLOC_CAP_DEFAULT, .hint_color = 39, .hint_bold = 0}

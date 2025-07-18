@@ -29,7 +29,7 @@ set(modules_priv_includes ${version_includes} ${restart_includes} ${tasks_includ
 # ------------------------------- #
 
 idf_component_register(
-    SRCS "src/command_line_interface.c" "src/init.c" ${modules_srcs}
+    SRCS "src/command_line_interface.c" "src/init.c" "src/config.c" ${modules_srcs}
     INCLUDE_DIRS "." "include" ${modules_includes}
     PRIV_INCLUDE_DIRS ${modules_priv_includes}
     REQUIRES driver freertos esp_timer console esp_hw_support spi_flash

@@ -6,7 +6,7 @@
 
 #include "ram_nfo.h"
 
-static const char *TAG = "RAM_info";
+static const char *TAG = "cli_RAM_info";
 
 void printRamInfoatBoot(void) {
   ESP_LOGI("SYSTEM", "Total RAM          memory: %u bytes", heap_caps_get_total_size(MALLOC_CAP_INTERNAL));
@@ -52,6 +52,7 @@ static void register_ram_info(void)
         .func = &ram_info,
     };
     ESP_ERROR_CHECK( esp_console_cmd_register(&cmd) );
+    ESP_LOGI(TAG, "'%s' command registered.", cmd.command);
 }
 
 /*

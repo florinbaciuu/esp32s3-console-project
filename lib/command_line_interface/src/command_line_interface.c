@@ -26,45 +26,69 @@ void cli_register_all_commands(void)
 
 // -------------------------------------------------
 
+static const char *florios_banner =
+" ███████████ ████                      ███     ███████     █████████ \n"
+"░░███░░░░░░█░░███                     ░░░    ███░░░░░███  ███░░░░░███\n"
+" ░███   █ ░  ░███   ██████  ████████  ████  ███     ░░███░███    ░░░ \n"
+" ░███████    ░███  ███░░███░░███░░███░░███ ░███      ░███░░█████████ \n"
+" ░███░░░█    ░███ ░███ ░███ ░███ ░░░  ░███ ░███      ░███ ░░░░░░░░███\n"
+" ░███  ░     ░███ ░███ ░███ ░███      ░███ ░░███     ███  ███    ░███\n"
+" █████       █████░░██████  █████     █████ ░░░███████░  ░░█████████ \n"
+"░░░░░       ░░░░░  ░░░░░░  ░░░░░     ░░░░░    ░░░░░░░     ░░░░░░░░░  \n";
+
+
 TaskHandle_t xHandle_esp32_cli;
 
 void printStartupMessage()
 {
+    // printf("\n%s\n", florios_banner);  // Afișează blazonul
+    printf("\033[1;34m%s\033[0m\n", florios_banner); // albastru intens
+
     printf(
         "\n"
-        "This is an example of ESP-IDF console component.\n"
-        "Type 'help' to get the list of commands.\n"
-        "Use UP/DOWN arrows to navigate through command history.\n"
-        "Press TAB when typing command name to auto-complete.\n"
-        "Ctrl+C will terminate the console environment.\n");
-
+        "╔═════════════════════════════════════════════════════════════════╗\n"
+        "║                    🔧 FloriOS Console Online 🔧                 ║\n"
+        "╠═════════════════════════════════════════════════════════════════╣\n"
+        "║  🕹️  Type 'help'           →  List all available commands        ║\n"
+        "║  🔁  Use ↑ / ↓            →  Navigate command history           ║\n"
+        "║  ⚡  Press [TAB]          →  Auto-complete command names        ║\n"
+        "║  💣  Ctrl + C             →  Exit the console (if you dare)     ║\n"
+        "╚═════════════════════════════════════════════════════════════════╝\n"
+        "\n");
+        printf("Made by Florin Baciu.\n");
     if (linenoiseIsDumbMode())
     {
         printf(
-            "\n"
-            "Your terminal application does not support escape sequences.\n"
-            "Line editing and history features are disabled.\n"
-            "On Windows, try using Putty instead.\n");
+            "⚠️  Terminal dumb mode detected!\n"
+            "Line editing and history are disabled.\n"
+            "💡 Try using a better terminal (like PuTTY or Minicom).\n\n");
     }
+    else
+    {
+        printf("🧠 Terminal capabilities: FULLY ENABLED\n\n");
+    }
+    printf("🚀 Welcome, Commander. System is ready for input.\n");
+    printf("💭 Remember: even the most powerful systems wait for a single command...\n");
 }
 
-void rtos_init_cli(){
+void rtos_init_cli()
+{
     /* Initialize console output periheral (UART, USB_OTG, USB_JTAG) */
-  initialize_console_peripheral();
+    initialize_console_peripheral();
 
-  /* Initialize linenoise library and esp_console*/
-  initialize_console_library(HISTORY_PATH);
+    /* Initialize linenoise library and esp_console*/
+    initialize_console_library(HISTORY_PATH);
 
-  /* Prompt to be printed before each line.
+    /* Prompt to be printed before each line.
      * This can be customized, made dynamic, etc.
      */
-  const char *prompt = setup_prompt(PROMPT_STR ">");
+    const char *prompt = setup_prompt(PROMPT_STR ">");
 
-  /* Register commands */
-  // esp_console_register_help_command();
-  //register_system_common();
-  //cli_register_custom_help_command(); // aici am modificat ultima pt tine alua sa vezi
-  cli_register_all_commands(); // my command
+    /* Register commands */
+    // esp_console_register_help_command();
+    // register_system_common();
+    // cli_register_custom_help_command(); // aici am modificat ultima pt tine alua sa vezi
+    cli_register_all_commands(); // my command
 }
 
 /********************************************** */

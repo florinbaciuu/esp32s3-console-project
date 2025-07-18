@@ -87,6 +87,7 @@ static void register_version(void)
         .func = &get_version,
     };
     ESP_ERROR_CHECK( esp_console_cmd_register(&cmd) );
+    ESP_LOGI(TAG, "'%s' command registered.", cmd.command);
 }
 
 // -------------------

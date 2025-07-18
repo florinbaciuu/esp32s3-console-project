@@ -10,4 +10,4 @@
 #define MOUNT_PATH "/sdcard"
 #define HISTORY_PATH MOUNT_PATH "/history.txt"
 
-#define CONSOLE_PROMPT_MAX_LEN (32)
+extern char prompt[CONSOLE_PROMPT_MAX_LEN];
