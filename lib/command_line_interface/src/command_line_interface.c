@@ -11,6 +11,8 @@
 #include "modules/tasks_nfo/tasks_nfo.h"
 #include "modules/uptime/uptime.h"
 #include "modules/info/info.h"
+#include "modules/nvs_cmd/nvs_cmd.h"
+#include "modules/wifi_cmd/wifi_cmd.h"
 
 // -------------------------------------------------
 
@@ -21,6 +23,8 @@ void cli_register_all_commands(void)
     cli_register_tasks_info_command();
     cli_register_uptime_command();
     cli_register_info_command();
+    //cli_register_nsv_command(); // TODO de implementat cum trebuie
+    cli_register_WiFi_join_command();
     return;
 }
 

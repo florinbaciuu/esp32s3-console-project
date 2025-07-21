@@ -18,12 +18,20 @@ set(uptime_includes "modules/uptime")
 set(info_srcs "modules/info/info.c" "modules/info/funct.c")
 set(info_includes "modules/info")
 
+# Se adauga modulul nvs
+set(nvs_cmd_srcs "modules/nvs_cmd/nvs_cmd.c")
+set(nvs_cmd_includes "modules/nvs_cmd")
+
+# Se adauga modulul wifi
+set(wifi_cmd_srcs "modules/wifi_cmd/wifi_join_cmd.c")
+set(wifi_cmd_includes "modules/wifi_cmd")
+
 # ------------------------------ #
 
 # Aduna toate modulele intr-un singur
-set(modules_srcs  ${restart_srcs} ${tasks_srcs}  ${uptime_srcs} ${info_srcs})
-set(modules_includes  ${restart_includes} ${tasks_includes}  ${uptime_includes} ${info_includes})
-set(modules_priv_includes  ${restart_includes} ${tasks_includes}  ${uptime_includes} ${info_includes})
+set(modules_srcs  ${restart_srcs} ${tasks_srcs}  ${uptime_srcs} ${info_srcs} ${nvs_cmd_srcs} ${wifi_cmd_srcs})
+set(modules_includes  ${restart_includes} ${tasks_includes}  ${uptime_includes} ${info_includes} ${nvs_cmd_includes} ${wifi_cmd_includes} )
+set(modules_priv_includes  ${restart_includes} ${tasks_includes}  ${uptime_includes} ${info_includes} ${nvs_cmd_includes} ${wifi_cmd_includes} )
 
 # ------------------------------- #
 
@@ -31,7 +39,7 @@ idf_component_register(
     SRCS "src/command_line_interface.c" "src/init.c" "src/config.c" ${modules_srcs}
     INCLUDE_DIRS "." "include" ${modules_includes}
     PRIV_INCLUDE_DIRS ${modules_priv_includes} ${REQUIRES}
-    REQUIRES driver freertos esp_timer console esp_hw_support spi_flash esp_system heap esp_common esp_psram esp_hw_support 
+    REQUIRES driver freertos esp_timer console esp_hw_support spi_flash esp_system heap esp_common esp_psram esp_hw_support nvs_flash esp_wifi
 )
 
 # Asta adaug-o separat:

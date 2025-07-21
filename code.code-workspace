@@ -239,7 +239,9 @@
 			"bootloader_nfo.h": "c",
 			"uptime.h": "c",
 			"custom_help.h": "c",
-			"tasks_nfo.h": "c"
+			"tasks_nfo.h": "c",
+			"nvs.h": "c",
+			"nvs_cmd.h": "c"
 		},
 		//------------------------------------------------------------------
 		"accessibility.underlineLinks": true,

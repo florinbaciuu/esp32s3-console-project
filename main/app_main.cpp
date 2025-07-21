@@ -7,8 +7,11 @@
  *********************/
 #define PWR_EN_PIN (10) // connected to the battery alone
 //---------
-#define PWR_ON_PIN (14)    // if you use an ext 5V power supply, you need to bring a magnet close to the ReedSwitch and set the PowerOn Pin (GPIO14) to HIGH
-#define Dellp_OFF_PIN (21) // connected to the battery and the USB power supply, used to turn off the device
+#define PWR_ON_PIN                                                                                 \
+    (14) // if you use an ext 5V power supply, you need to bring a magnet close to the ReedSwitch
+         // and set the PowerOn Pin (GPIO14) to HIGH
+#define Dellp_OFF_PIN                                                                              \
+    (21) // connected to the battery and the USB power supply, used to turn off the device
 //---------
 
 //---------
@@ -16,33 +19,32 @@
 /*********************
  *      INCLUDES
  *********************/
-extern "C"
-{
+extern "C" {
 #include <stdio.h>
 
+#include "ResourceMonitor.h"
+#include "driver/gpio.h"
 #include "esp_bootloader_desc.h"
+#include "esp_log.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
-#include "driver/gpio.h"
-#include "esp_log.h"
-#include "ResourceMonitor.h"
 
-#include <string.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include "esp_system.h"
-#include "esp_console.h"
-#include "linenoise/linenoise.h"
 #include "argtable3/argtable3.h"
+#include "driver/sdmmc_host.h"
 #include "driver/usb_serial_jtag.h"
 #include "driver/usb_serial_jtag_vfs.h"
-#include "driver/sdmmc_host.h"
+#include "esp_console.h"
+#include "esp_event.h"
+#include "esp_system.h"
 #include "esp_vfs_fat.h"
+#include "linenoise/linenoise.h"
 #include "nvs.h"
 #include "nvs_flash.h"
-#include "soc/soc_caps.h"
-#include "esp_event.h"
 #include "sdmmc_cmd.h"
+#include "soc/soc_caps.h"
+#include <fcntl.h>
+#include <string.h>
+#include <unistd.h>
 
 #include "command_line_interface.h"
 }
@@ -72,38 +74,39 @@ extern "C"
 
 #ifdef SDCARD_USE
 
-static void initialize_filesystem_sdmmc(void)
-{
-  esp_vfs_fat_mount_config_t mount_config = {
-      .format_if_mount_failed = false, .max_files = 4, .allocation_unit_size = 16 * 1024, .disk_status_check_enable = false, .use_one_fat = false};
+static void initialize_filesystem_sdmmc(void) {
+    esp_vfs_fat_mount_config_t mount_config = {.format_if_mount_failed = false,
+        .max_files = 4,
+        .allocation_unit_size = 16 * 1024,
+        .disk_status_check_enable = false,
+        .use_one_fat = false};
 
-  sdmmc_card_t *card;
-  const char mount_point[] = MOUNT_PATH;
+    sdmmc_card_t* card;
+    const char mount_point[] = MOUNT_PATH;
 
-  // Configurare SDMMC host
-  sdmmc_host_t host = SDMMC_HOST_DEFAULT();
+    // Configurare SDMMC host
+    sdmmc_host_t host = SDMMC_HOST_DEFAULT();
 
-  // Configurare pini slot SDMMC
-  sdmmc_slot_config_t slot_config = SDMMC_SLOT_CONFIG_DEFAULT();
-  slot_config.clk = (gpio_num_t)SDIO_SCLK_PIN;
-  slot_config.cmd = (gpio_num_t)SDIO_CMD_PIN;
-  slot_config.d0 = (gpio_num_t)SDIO_DATA0_PIN;
-  slot_config.width = 1; // 1-bit mode
+    // Configurare pini slot SDMMC
+    sdmmc_slot_config_t slot_config = SDMMC_SLOT_CONFIG_DEFAULT();
+    slot_config.clk = (gpio_num_t)SDIO_SCLK_PIN;
+    slot_config.cmd = (gpio_num_t)SDIO_CMD_PIN;
+    slot_config.d0 = (gpio_num_t)SDIO_DATA0_PIN;
+    slot_config.width = 1; // 1-bit mode
 
-  // (daca ai pull-up externi, poți comenta linia de mai jos)
-  gpio_set_pull_mode((gpio_num_t)SDIO_CMD_PIN, GPIO_PULLUP_ONLY);
-  gpio_set_pull_mode((gpio_num_t)SDIO_DATA0_PIN, GPIO_PULLUP_ONLY);
-  gpio_set_pull_mode((gpio_num_t)SDIO_SCLK_PIN, GPIO_PULLUP_ONLY);
+    // (daca ai pull-up externi, poți comenta linia de mai jos)
+    gpio_set_pull_mode((gpio_num_t)SDIO_CMD_PIN, GPIO_PULLUP_ONLY);
+    gpio_set_pull_mode((gpio_num_t)SDIO_DATA0_PIN, GPIO_PULLUP_ONLY);
+    gpio_set_pull_mode((gpio_num_t)SDIO_SCLK_PIN, GPIO_PULLUP_ONLY);
 
-  esp_err_t ret = esp_vfs_fat_sdmmc_mount(mount_point, &host, &slot_config, &mount_config, &card);
-  if (ret != ESP_OK)
-  {
-    ESP_LOGE("SD", "Failed to mount SDMMC (%s)", esp_err_to_name(ret));
-    return;
-  }
+    esp_err_t ret = esp_vfs_fat_sdmmc_mount(mount_point, &host, &slot_config, &mount_config, &card);
+    if (ret != ESP_OK) {
+        ESP_LOGE("SD", "Failed to mount SDMMC (%s)", esp_err_to_name(ret));
+        return;
+    }
 
-  ESP_LOGI("SD", "SD card mounted at %s", mount_point);
-  sdmmc_card_print_info(stdout, card);
+    ESP_LOGI("SD", "SD card mounted at %s", mount_point);
+    sdmmc_card_print_info(stdout, card);
 }
 
 #else
@@ -111,22 +114,21 @@ static void initialize_filesystem_sdmmc(void)
 // Handle of the wear levelling library instance
 static wl_handle_t s_wl_handle = WL_INVALID_HANDLE;
 
-void initialize_filesystem()
-{
-  const esp_vfs_fat_mount_config_t config = {
-      .format_if_mount_failed = true,
-      .max_files = 5,
-      .allocation_unit_size = CONFIG_WL_SECTOR_SIZE,
-      .disk_status_check_enable = false,
-      .use_one_fat = false,
-  };
+void initialize_filesystem() {
+    const esp_vfs_fat_mount_config_t config = {
+        .format_if_mount_failed = true,
+        .max_files = 5,
+        .allocation_unit_size = CONFIG_WL_SECTOR_SIZE,
+        .disk_status_check_enable = false,
+        .use_one_fat = false,
+    };
 
-  esp_err_t err = esp_vfs_fat_spiflash_mount_rw_wl(MOUNT_PATH, PARTITION_LABEL, &config, &s_wl_handle);
-  if (err != ESP_OK)
-  {
-    ESP_LOGE("ffat", "Failed to mount FATFS (%s)", esp_err_to_name(err));
-    return;
-  }
+    esp_err_t err =
+        esp_vfs_fat_spiflash_mount_rw_wl(MOUNT_PATH, PARTITION_LABEL, &config, &s_wl_handle);
+    if (err != ESP_OK) {
+        ESP_LOGE("ffat", "Failed to mount FATFS (%s)", esp_err_to_name(err));
+        return;
+    }
 }
 
 #endif /* #ifdef (SDCARD_USE) */
@@ -135,64 +137,55 @@ void initialize_filesystem()
 // #define HISTORY_PATH NULL
 #endif // CONFIG_CONSOLE_STORE_HISTORY
 
-static void initialize_nvs(void)
-{
-  esp_err_t err = nvs_flash_init();
-  if (err == ESP_ERR_NVS_NO_FREE_PAGES || err == ESP_ERR_NVS_NEW_VERSION_FOUND)
-  {
-    ESP_ERROR_CHECK(nvs_flash_erase());
-    err = nvs_flash_init();
-  }
-  ESP_ERROR_CHECK(err);
+static void initialize_nvs(void) {
+    esp_err_t err = nvs_flash_init();
+    if (err == ESP_ERR_NVS_NO_FREE_PAGES || err == ESP_ERR_NVS_NEW_VERSION_FOUND) {
+        ESP_ERROR_CHECK(nvs_flash_erase());
+        err = nvs_flash_init();
+    }
+    ESP_ERROR_CHECK(err);
 }
 
 // ----------------------------------------------------------
 
-esp_err_t initialize_eeproom()
-{
-  ESP_LOGI("eeproom", "🔧 Initializing NVS partition 'eeproom'...");
+esp_err_t initialize_eeproom() {
+    ESP_LOGI("eeproom", "🔧 Initializing NVS partition 'eeproom'...");
 
-  esp_err_t err = nvs_flash_init_partition("eeproom");
-  if (err == ESP_ERR_NVS_NO_FREE_PAGES || err == ESP_ERR_NVS_NEW_VERSION_FOUND)
-  {
-    ESP_LOGW("eeproom", "⚠️ NVS partition is full or version mismatch. Erasing...");
+    esp_err_t err = nvs_flash_init_partition("eeproom");
+    if (err == ESP_ERR_NVS_NO_FREE_PAGES || err == ESP_ERR_NVS_NEW_VERSION_FOUND) {
+        ESP_LOGW("eeproom", "⚠️ NVS partition is full or version mismatch. Erasing...");
 
-    err = nvs_flash_erase_partition("eeproom");
-    if (err != ESP_OK)
-    {
-      ESP_LOGE("eeproom", "❌ Failed to erase 'eeproom' partition: %s", esp_err_to_name(err));
-      return err;
+        err = nvs_flash_erase_partition("eeproom");
+        if (err != ESP_OK) {
+            ESP_LOGE("eeproom", "❌ Failed to erase 'eeproom' partition: %s", esp_err_to_name(err));
+            return err;
+        }
+
+        err = nvs_flash_init_partition("eeproom");
+        if (err != ESP_OK) {
+            ESP_LOGE("eeproom", "❌ Failed to re-initialize 'eeproom' after erase: %s",
+                esp_err_to_name(err));
+            return err;
+        }
     }
 
-    err = nvs_flash_init_partition("eeproom");
-    if (err != ESP_OK)
-    {
-      ESP_LOGE("eeproom", "❌ Failed to re-initialize 'eeproom' after erase: %s", esp_err_to_name(err));
-      return err;
+    if (err == ESP_OK) {
+        ESP_LOGI("eeproom", "✅ NVS partition 'eeproom' initialized successfully");
+    } else {
+        ESP_LOGE("eeproom", "❌ Failed to initialize NVS: %s", esp_err_to_name(err));
+        return err;
     }
-  }
 
-  if (err == ESP_OK)
-  {
-    ESP_LOGI("eeproom", "✅ NVS partition 'eeproom' initialized successfully");
-  }
-  else
-  {
-    ESP_LOGE("eeproom", "❌ Failed to initialize NVS: %s", esp_err_to_name(err));
-    return err;
-  }
+    // Deschidem un handle ca să verificăm spațiul
+    nvs_handle_t handle;
+    err = nvs_open_from_partition("eeproom", "diagnostic", NVS_READWRITE, &handle);
+    if (err != ESP_OK) {
+        ESP_LOGE("eeproom", "❌ Can't open NVS handle for diagnostics: %s", esp_err_to_name(err));
+        return err;
+    }
 
-  // Deschidem un handle ca să verificăm spațiul
-  nvs_handle_t handle;
-  err = nvs_open_from_partition("eeproom", "diagnostic", NVS_READWRITE, &handle);
-  if (err != ESP_OK)
-  {
-    ESP_LOGE("eeproom", "❌ Can't open NVS handle for diagnostics: %s", esp_err_to_name(err));
-    return err;
-  }
-
-  nvs_close(handle);
-  return ESP_OK;
+    nvs_close(handle);
+    return ESP_OK;
 }
 
 //---------
@@ -201,31 +194,28 @@ esp_err_t initialize_eeproom()
  *   GLOBAL FUNCTIONS
  **********************/
 //---------
-void gpio_extra_set_init(uint32_t mode)
-{
-  // Setăm ambii pini ca output
-  gpio_config_t io_conf = {
-      .pin_bit_mask = (1ULL << PWR_EN_PIN) | (1ULL << PWR_ON_PIN),
-      .mode = GPIO_MODE_OUTPUT,
-      .pull_up_en = GPIO_PULLUP_DISABLE,
-      .pull_down_en = GPIO_PULLDOWN_DISABLE,
-      .intr_type = GPIO_INTR_DISABLE,
-  };
-  gpio_config(&io_conf);
-  gpio_set_level((gpio_num_t)PWR_EN_PIN, mode);
-  gpio_set_level((gpio_num_t)PWR_ON_PIN, mode); // nu e nevoie de el daca alimentam usb
+void power_latch_init_5V(uint32_t mode) {
+    // Setăm ambii pini ca output
+    gpio_config_t io_conf = {
+        .pin_bit_mask = (1ULL << PWR_EN_PIN) | (1ULL << PWR_ON_PIN),
+        .mode = GPIO_MODE_OUTPUT,
+        .pull_up_en = GPIO_PULLUP_DISABLE,
+        .pull_down_en = GPIO_PULLDOWN_DISABLE,
+        .intr_type = GPIO_INTR_DISABLE,
+    };
+    gpio_config(&io_conf);
+    gpio_set_level((gpio_num_t)PWR_EN_PIN, mode);
+    gpio_set_level((gpio_num_t)PWR_ON_PIN, mode); // nu e nevoie de el daca alimentam usb
 }
 //---------
-void power_latch_init()
-{
-  gpio_config_t io_conf = {
-      .pin_bit_mask = 1ULL << PWR_EN_PIN,
-      .mode = GPIO_MODE_OUTPUT,
-      .pull_up_en = GPIO_PULLUP_DISABLE,
-      .pull_down_en = GPIO_PULLDOWN_DISABLE,
-      .intr_type = GPIO_INTR_DISABLE};
-  gpio_config(&io_conf);
-  gpio_set_level((gpio_num_t)PWR_EN_PIN, 1); // ⚡ ține placa aprinsă
+void power_latch_init_Battery() {
+    gpio_config_t io_conf = {.pin_bit_mask = 1ULL << PWR_EN_PIN,
+        .mode = GPIO_MODE_OUTPUT,
+        .pull_up_en = GPIO_PULLUP_DISABLE,
+        .pull_down_en = GPIO_PULLDOWN_DISABLE,
+        .intr_type = GPIO_INTR_DISABLE};
+    gpio_config(&io_conf);
+    gpio_set_level((gpio_num_t)PWR_EN_PIN, 1); // ⚡ ține placa aprinsă
 }
 //---------
 //---------
@@ -261,40 +251,38 @@ TaskHandle_t xHandle_ResourceMonitor;
   * It initializes the hardware, sets up the display, and starts the LVGL tasks.
   * The application will run indefinitely until the device is powered off or reset.
 */
-extern "C" void app_main(void)
-{
-  //// gpio_extra_set_init(1);
-  power_latch_init(); // Inițializare latch pentru alimentare
-  //// esp_log_level_set("*", ESP_LOG_MAX); //
-  esp_log_level_set("*", ESP_LOG_INFO);
+extern "C" void app_main(void) {
+    //power_latch_init_Battery(); // Inițializare latch pentru alimentare T-Hmi Lilygo
+    esp_log_level_set("*", ESP_LOG_INFO);
 
-  initialize_nvs();
+    initialize_nvs();
 
-  ESP_ERROR_CHECK(initialize_eeproom());
+    ESP_ERROR_CHECK(initialize_eeproom());
 
 #if CONFIG_CONSOLE_STORE_HISTORY
 #ifdef SDCARD_USE
-  initialize_filesystem_sdmmc();
-  ESP_LOGI("CONSOLE", "Command history enabled on SDCARD");
+    initialize_filesystem_sdmmc();
+    ESP_LOGI("CONSOLE", "Command history enabled on SDCARD");
 #else
-  initialize_filesystem();
-  ESP_LOGI("CONSOLE", "Command history enabled on Internal FAT partition");
+    initialize_filesystem();
+    ESP_LOGI("CONSOLE", "Command history enabled on Internal FAT partition");
 #endif /* #ifdef SDCARD_USE */
 
 #else
-  ESP_LOGI("CONSOLE", "Command history disabled");
+    ESP_LOGI("CONSOLE", "Command history disabled");
 #endif
 
-  esp_bootloader_desc_t bootloader_desc;
-  printf("\n");
-  ESP_LOGI("Bootloader description", "\tESP-IDF version from 2nd stage bootloader: %s\n", bootloader_desc.idf_ver);
-  ESP_LOGI("Bootloader description", "\tESP-IDF version from app: %s\n", IDF_VER);
-  // printf("\tESP-IDF version from 2nd stage bootloader: %s\n", bootloader_desc.idf_ver);
-  // printf("\tESP-IDF version from app: %s\n", IDF_VER);
+    esp_bootloader_desc_t bootloader_desc;
+    printf("\n");
+    ESP_LOGI("Bootloader description", "\tESP-IDF version from 2nd stage bootloader: %s\n",
+        bootloader_desc.idf_ver);
+    ESP_LOGI("Bootloader description", "\tESP-IDF version from app: %s\n", IDF_VER);
+    // printf("\tESP-IDF version from 2nd stage bootloader: %s\n", bootloader_desc.idf_ver);
+    // printf("\tESP-IDF version from app: %s\n", IDF_VER);
 
-  // start_resource_monitor();
-  // vTaskDelay(pdMS_TO_TICKS(1000));
-  StartCLI();
+    // start_resource_monitor();
+    // vTaskDelay(pdMS_TO_TICKS(1000));
+    StartCLI();
 
 } // app_main
 
