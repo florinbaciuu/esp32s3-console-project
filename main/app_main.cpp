@@ -1,23 +1,23 @@
 /**
- * @file      app_main.cpp. 
+ * @file      app_main.cpp.
  */
 
 /*********************
  *      DEFINES
  *********************/
-#define PWR_EN_PIN                 (10)                // connected to the battery alone
+#define PWR_EN_PIN (10) // connected to the battery alone
 //---------
-#define PWR_ON_PIN    (14)  // if you use an ext 5V power supply, you need to bring a magnet close to the ReedSwitch and set the PowerOn Pin (GPIO14) to HIGH
-#define Dellp_OFF_PIN (21)  // connected to the battery and the USB power supply, used to turn off the device
+#define PWR_ON_PIN (14)    // if you use an ext 5V power supply, you need to bring a magnet close to the ReedSwitch and set the PowerOn Pin (GPIO14) to HIGH
+#define Dellp_OFF_PIN (21) // connected to the battery and the USB power supply, used to turn off the device
 //---------
-
 
 //---------
 
 /*********************
  *      INCLUDES
  *********************/
-extern "C" {
+extern "C"
+{
 #include <stdio.h>
 
 #include "esp_bootloader_desc.h"
@@ -53,20 +53,16 @@ extern "C" {
 // ----------------------------------------------------------
 // ----------------------------------------------------------
 
-#define SD_CS_PIN      (15)  // Chip Select pentru SPI
-#define SD_MISO_PIN    (13)
-#define SD_MOSI_PIN    (11)
-#define SD_SCLK_PIN    (12)
+#define SD_CS_PIN (15) // Chip Select pentru SPI
+#define SD_MISO_PIN (13)
+#define SD_MOSI_PIN (11)
+#define SD_SCLK_PIN (12)
 #define SDIO_DATA0_PIN (13)
-#define SDIO_CMD_PIN   (11)
-#define SDIO_SCLK_PIN  (12)
+#define SDIO_CMD_PIN (11)
+#define SDIO_SCLK_PIN (12)
 
-#define SD_FREQ_DEFAULT   20000 /*!< SD/MMC Default speed (limited by clock divider) */
+#define SD_FREQ_DEFAULT 20000   /*!< SD/MMC Default speed (limited by clock divider) */
 #define SD_FREQ_HIGHSPEED 40000 /*!< SD High speed (limited by clock divider) */
-
-
-
-
 
 /* Console command history can be stored to and loaded from a file.
  * The easiest way to do this is to use FATFS filesystem on top of
@@ -74,10 +70,12 @@ extern "C" {
  */
 #if CONFIG_CONSOLE_STORE_HISTORY
 
-static void initialize_filesystem_sdmmc(void) {
+#ifdef SDCARD_USE
+
+static void initialize_filesystem_sdmmc(void)
+{
   esp_vfs_fat_mount_config_t mount_config = {
-    .format_if_mount_failed = false, .max_files = 4, .allocation_unit_size = 16 * 1024, .disk_status_check_enable = false, .use_one_fat = false
-  };
+      .format_if_mount_failed = false, .max_files = 4, .allocation_unit_size = 16 * 1024, .disk_status_check_enable = false, .use_one_fat = false};
 
   sdmmc_card_t *card;
   const char mount_point[] = MOUNT_PATH;
@@ -90,7 +88,7 @@ static void initialize_filesystem_sdmmc(void) {
   slot_config.clk = (gpio_num_t)SDIO_SCLK_PIN;
   slot_config.cmd = (gpio_num_t)SDIO_CMD_PIN;
   slot_config.d0 = (gpio_num_t)SDIO_DATA0_PIN;
-  slot_config.width = 1;  // 1-bit mode
+  slot_config.width = 1; // 1-bit mode
 
   // (daca ai pull-up externi, poți comenta linia de mai jos)
   gpio_set_pull_mode((gpio_num_t)SDIO_CMD_PIN, GPIO_PULLUP_ONLY);
@@ -98,7 +96,8 @@ static void initialize_filesystem_sdmmc(void) {
   gpio_set_pull_mode((gpio_num_t)SDIO_SCLK_PIN, GPIO_PULLUP_ONLY);
 
   esp_err_t ret = esp_vfs_fat_sdmmc_mount(mount_point, &host, &slot_config, &mount_config, &card);
-  if (ret != ESP_OK) {
+  if (ret != ESP_OK)
+  {
     ESP_LOGE("SD", "Failed to mount SDMMC (%s)", esp_err_to_name(ret));
     return;
   }
@@ -108,25 +107,46 @@ static void initialize_filesystem_sdmmc(void) {
 }
 
 #else
-//#define HISTORY_PATH NULL
-#endif  // CONFIG_CONSOLE_STORE_HISTORY
 
-static void initialize_nvs(void) {
+// Handle of the wear levelling library instance
+static wl_handle_t s_wl_handle = WL_INVALID_HANDLE;
+
+void initialize_filesystem()
+{
+  const esp_vfs_fat_mount_config_t config = {
+      .format_if_mount_failed = true,
+      .max_files = 5,
+      .allocation_unit_size = CONFIG_WL_SECTOR_SIZE,
+      .disk_status_check_enable = false,
+      .use_one_fat = false,
+  };
+
+  esp_err_t err = esp_vfs_fat_spiflash_mount_rw_wl(MOUNT_PATH, PARTITION_LABEL, &config, &s_wl_handle);
+  if (err != ESP_OK)
+  {
+    ESP_LOGE("ffat", "Failed to mount FATFS (%s)", esp_err_to_name(err));
+    return;
+  }
+}
+
+#endif /* #ifdef (SDCARD_USE) */
+
+#else
+// #define HISTORY_PATH NULL
+#endif // CONFIG_CONSOLE_STORE_HISTORY
+
+static void initialize_nvs(void)
+{
   esp_err_t err = nvs_flash_init();
-  if (err == ESP_ERR_NVS_NO_FREE_PAGES || err == ESP_ERR_NVS_NEW_VERSION_FOUND) {
+  if (err == ESP_ERR_NVS_NO_FREE_PAGES || err == ESP_ERR_NVS_NEW_VERSION_FOUND)
+  {
     ESP_ERROR_CHECK(nvs_flash_erase());
     err = nvs_flash_init();
   }
   ESP_ERROR_CHECK(err);
 }
 
-
-
-
-
-
 // ----------------------------------------------------------
-
 
 //---------
 
@@ -134,39 +154,36 @@ static void initialize_nvs(void) {
  *   GLOBAL FUNCTIONS
  **********************/
 //---------
-void gpio_extra_set_init(uint32_t mode) {
+void gpio_extra_set_init(uint32_t mode)
+{
   // Setăm ambii pini ca output
   gpio_config_t io_conf = {
-    .pin_bit_mask = (1ULL << PWR_EN_PIN) | (1ULL << PWR_ON_PIN),
-    .mode = GPIO_MODE_OUTPUT,
-    .pull_up_en = GPIO_PULLUP_DISABLE,
-    .pull_down_en = GPIO_PULLDOWN_DISABLE,
-    .intr_type = GPIO_INTR_DISABLE,
+      .pin_bit_mask = (1ULL << PWR_EN_PIN) | (1ULL << PWR_ON_PIN),
+      .mode = GPIO_MODE_OUTPUT,
+      .pull_up_en = GPIO_PULLUP_DISABLE,
+      .pull_down_en = GPIO_PULLDOWN_DISABLE,
+      .intr_type = GPIO_INTR_DISABLE,
   };
   gpio_config(&io_conf);
   gpio_set_level((gpio_num_t)PWR_EN_PIN, mode);
-  gpio_set_level((gpio_num_t)PWR_ON_PIN, mode);  // nu e nevoie de el daca alimentam usb
+  gpio_set_level((gpio_num_t)PWR_ON_PIN, mode); // nu e nevoie de el daca alimentam usb
 }
 //---------
-void power_latch_init() {
+void power_latch_init()
+{
   gpio_config_t io_conf = {
-    .pin_bit_mask = 1ULL << PWR_EN_PIN,
-    .mode = GPIO_MODE_OUTPUT,
-    .pull_up_en = GPIO_PULLUP_DISABLE,
-    .pull_down_en = GPIO_PULLDOWN_DISABLE,
-    .intr_type = GPIO_INTR_DISABLE
-  };
+      .pin_bit_mask = 1ULL << PWR_EN_PIN,
+      .mode = GPIO_MODE_OUTPUT,
+      .pull_up_en = GPIO_PULLUP_DISABLE,
+      .pull_down_en = GPIO_PULLDOWN_DISABLE,
+      .intr_type = GPIO_INTR_DISABLE};
   gpio_config(&io_conf);
-  gpio_set_level((gpio_num_t)PWR_EN_PIN, 1);  // ⚡ ține placa aprinsă
+  gpio_set_level((gpio_num_t)PWR_EN_PIN, 1); // ⚡ ține placa aprinsă
 }
 //---------
 //---------
 
-
-
 //---------
-
-
 
 /*
 ███████ ██████  ███████ ███████ ██████ ████████  ██████  ███████ 
@@ -197,22 +214,27 @@ TaskHandle_t xHandle_ResourceMonitor;
   * It initializes the hardware, sets up the display, and starts the LVGL tasks.
   * The application will run indefinitely until the device is powered off or reset.
 */
-extern "C" void app_main(void) {
+extern "C" void app_main(void)
+{
   //// gpio_extra_set_init(1);
-  power_latch_init();  // Inițializare latch pentru alimentare
+  power_latch_init(); // Inițializare latch pentru alimentare
   //// esp_log_level_set("*", ESP_LOG_MAX); //
   esp_log_level_set("*", ESP_LOG_INFO);
 
-  //initialize_nvs();
+  // initialize_nvs();
 
 #if CONFIG_CONSOLE_STORE_HISTORY
-  //initialize_filesystem();
-  initialize_filesystem_sdmmc(); 
-  ESP_LOGI("CONSOLE", "Command history enabled");
+#ifdef SDCARD_USE
+  initialize_filesystem_sdmmc();
+  ESP_LOGI("CONSOLE", "Command history enabled on SDCARD");
+#else
+  initialize_filesystem();
+  ESP_LOGI("CONSOLE", "Command history enabled on Internal FAT partition");
+#endif /* #ifdef SDCARD_USE */
+  
 #else
   ESP_LOGI("CONSOLE", "Command history disabled");
 #endif
-  
 
   esp_bootloader_desc_t bootloader_desc;
   printf("\n");
@@ -221,15 +243,11 @@ extern "C" void app_main(void) {
   // printf("\tESP-IDF version from 2nd stage bootloader: %s\n", bootloader_desc.idf_ver);
   // printf("\tESP-IDF version from app: %s\n", IDF_VER);
 
-
   // start_resource_monitor();
-  //vTaskDelay(pdMS_TO_TICKS(1000));
+  // vTaskDelay(pdMS_TO_TICKS(1000));
   StartCLI();
 
-}  // app_main
-
-
-
+} // app_main
 
 /********************************************** */
 

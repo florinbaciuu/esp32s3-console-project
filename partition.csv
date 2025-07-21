@@ -11,6 +11,5 @@
       spiffs,  data,    spiffs,         ,  1024K,       ,  # Type:(0x82);
     littlefs,  data,  littlefs,         ,  1024K,       ,  # Type:(0x83);
      eeproom,  data,       nvs,         ,   512K,       ,  # Type:(0x02); EEPROOM PARTITION
-     storage,  data,       fat,         ,  1024K,       ,  # Type:(0x81);
      nvs_key,  data,  nvs_keys,         ,     4k,       ,  # Type:(0x04); Default: 4kB(0x1000);
     coredump,  data,  coredump,         ,    64K,       ,  # Type:(0x03); Default: 64kB(0x10000);

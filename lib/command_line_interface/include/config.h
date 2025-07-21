@@ -7,15 +7,16 @@
 #define CONFIG_CONSOLE_IGNORE_EMPTY_LINES 1
 #define PROMPT_STR CONFIG_IDF_TARGET
 
-#define SDCARD_USE
+//#define SDCARD_USE
 
 #ifdef SDCARD_USE
 #define MOUNT_PATH "/sdcard"
 #define HISTORY_PATH MOUNT_PATH "/history.txt"
 #else
-#define MOUNT_PATH "/sdcard"
+#define BASE_PATH "/spiflash"
+#define PARTITION_LABEL "ffat"
+#define MOUNT_PATH "/spiflash"
 #define HISTORY_PATH MOUNT_PATH "/history.txt"
 #endif /* #if SDCARD_USE */
-
 
 extern char prompt[CONSOLE_PROMPT_MAX_LEN];
