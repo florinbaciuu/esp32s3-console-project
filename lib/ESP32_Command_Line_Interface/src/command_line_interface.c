@@ -13,6 +13,7 @@
 #include "modules/info/info.h"
 #include "modules/nvs_cmd/nvs_cmd.h"
 #include "modules/wifi_cmd/wifi_cmd.h"
+#include "modules/set_cmd/set_cmd.h"
 
 // -------------------------------------------------
 
@@ -25,6 +26,7 @@ void cli_register_all_commands(void)
     cli_register_info_command();
     //cli_register_nsv_command(); // TODO de implementat cum trebuie
     cli_register_WiFi_join_command();
+    cli_register_set_command();
     return;
 }
 

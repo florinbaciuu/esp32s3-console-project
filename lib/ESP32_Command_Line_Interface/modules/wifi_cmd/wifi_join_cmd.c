@@ -25,6 +25,8 @@
 
 #include "wifi_cmd.h"
 
+static const char *TAG = "wifi_cmd";
+
 #define JOIN_TIMEOUT_MS (10000)
 
 static EventGroupHandle_t wifi_event_group;

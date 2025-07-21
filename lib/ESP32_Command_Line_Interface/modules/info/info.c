@@ -6,7 +6,7 @@
 #include "info.h"
 #include "funct.h"
 
-static const char *TAG = "CLI INFO";
+static const char *TAG = "info_cmd";
 
 // ------------------------------
 

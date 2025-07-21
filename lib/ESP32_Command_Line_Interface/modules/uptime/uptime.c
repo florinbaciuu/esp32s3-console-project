@@ -4,7 +4,7 @@
 #include "esp_log.h"
 #include "uptime.h"
 
-static const char *TAG = "cli_uptime";
+static const char *TAG = "uptime_cmd";
 
 static int uptime_command(int argc, char **argv)
 {

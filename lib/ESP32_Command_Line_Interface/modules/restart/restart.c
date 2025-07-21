@@ -11,7 +11,7 @@
 #include "freertos/task.h"
 #include "sdkconfig.h"
 
-static const char *TAG = "cli_restart";
+static const char *TAG = "restart_cmd";
 
 static int restart(int argc, char **argv)
 {

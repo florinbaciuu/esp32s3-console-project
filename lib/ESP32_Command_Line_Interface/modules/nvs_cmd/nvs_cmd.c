@@ -19,8 +19,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
 #include "nvs_cmd.h"
+
+static const char *TAG = "nvs_cmd";
 
 typedef struct {
     nvs_type_t type;
@@ -44,7 +45,6 @@ static const type_str_pair_t type_str_pair[] = {
 static const size_t TYPE_STR_PAIR_SIZE = sizeof(type_str_pair) / sizeof(type_str_pair[0]);
 static const char* ARG_TYPE_STR = "type can be: i8, u8, i16, u16 i32, u32 i64, u64, str, blob";
 static char current_namespace[16] = "storage";
-static const char* TAG = "cmd_nvs";
 
 static struct {
     struct arg_str* key;
@@ -579,7 +579,7 @@ void register_nvs(void) {
     ESP_ERROR_CHECK(esp_console_cmd_register(&namespace_cmd));
     ESP_ERROR_CHECK(esp_console_cmd_register(&list_entries_cmd));
     ESP_ERROR_CHECK(esp_console_cmd_register(&erase_namespace_cmd));
-    ESP_LOGI("cmd_nvs", "nvs commands registered!");
+    ESP_LOGI(TAG, "nvs commands registered!");
 }
 
 void cli_register_nsv_command(void) {

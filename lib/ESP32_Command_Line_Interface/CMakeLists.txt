@@ -26,12 +26,16 @@ set(nvs_cmd_includes "modules/nvs_cmd")
 set(wifi_cmd_srcs "modules/wifi_cmd/wifi_join_cmd.c")
 set(wifi_cmd_includes "modules/wifi_cmd")
 
+# Se adauga modulul set
+set(set_cmd_srcs "modules/set_cmd/set_cmd.c" "modules/set_cmd/set_log.c")
+set(set_cmd_includes "modules/set_cmd")
+
 # ------------------------------ #
 
 # Aduna toate modulele intr-un singur
-set(modules_srcs  ${restart_srcs} ${tasks_srcs}  ${uptime_srcs} ${info_srcs} ${nvs_cmd_srcs} ${wifi_cmd_srcs})
-set(modules_includes  ${restart_includes} ${tasks_includes}  ${uptime_includes} ${info_includes} ${nvs_cmd_includes} ${wifi_cmd_includes} )
-set(modules_priv_includes  ${restart_includes} ${tasks_includes}  ${uptime_includes} ${info_includes} ${nvs_cmd_includes} ${wifi_cmd_includes} )
+set(modules_srcs  ${restart_srcs} ${tasks_srcs}  ${uptime_srcs} ${info_srcs} ${nvs_cmd_srcs} ${wifi_cmd_srcs} ${set_cmd_srcs})
+set(modules_includes  ${restart_includes} ${tasks_includes}  ${uptime_includes} ${info_includes} ${nvs_cmd_includes} ${wifi_cmd_includes} ${set_cmd_includes})
+set(modules_priv_includes  ${restart_includes} ${tasks_includes}  ${uptime_includes} ${info_includes} ${nvs_cmd_includes} ${wifi_cmd_includes} ${set_cmd_includes})
 
 # ------------------------------- #
 

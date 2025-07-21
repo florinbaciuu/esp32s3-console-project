@@ -241,7 +241,10 @@
 			"custom_help.h": "c",
 			"tasks_nfo.h": "c",
 			"nvs.h": "c",
-			"nvs_cmd.h": "c"
+			"nvs_cmd.h": "c",
+			"set_log.h": "c",
+			"text_encoding": "c",
+			"typeinfo": "c"
 		},
 		//------------------------------------------------------------------
 		"accessibility.underlineLinks": true,
