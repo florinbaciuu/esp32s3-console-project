@@ -41,6 +41,7 @@ extern "C" {
 #include "nvs.h"
 #include "nvs_flash.h"
 #include "soc/soc_caps.h"
+#include "esp_event.h"
 #include "sdmmc_cmd.h"
 
 #include "command_line_interface.h"
@@ -50,12 +51,6 @@ extern "C" {
  *   GLOBAL FUNCTIONS
  **********************/
 // ----------------------------------------------------------
-
-/**
- * Prototypes for functions
- */
-void printRamInfoatBoot(void);
-
 // ----------------------------------------------------------
 
 #define SD_CS_PIN      (15)  // Chip Select pentru SPI
@@ -78,9 +73,6 @@ void printRamInfoatBoot(void);
  * wear_levelling library.
  */
 #if CONFIG_CONSOLE_STORE_HISTORY
-
-// #define MOUNT_PATH   "/data"
-#define MOUNT_PATH   "/sdcard"
 
 static void initialize_filesystem_sdmmc(void) {
   esp_vfs_fat_mount_config_t mount_config = {
@@ -116,7 +108,7 @@ static void initialize_filesystem_sdmmc(void) {
 }
 
 #else
-#define HISTORY_PATH NULL
+//#define HISTORY_PATH NULL
 #endif  // CONFIG_CONSOLE_STORE_HISTORY
 
 static void initialize_nvs(void) {
@@ -193,7 +185,6 @@ TaskHandle_t xHandle_ResourceMonitor;
 //---------
 
 /****************************/
-
 //--------------------------------------
 
 /*
@@ -212,11 +203,11 @@ extern "C" void app_main(void) {
   //// esp_log_level_set("*", ESP_LOG_MAX); //
   esp_log_level_set("*", ESP_LOG_INFO);
 
-  initialize_nvs();
+  //initialize_nvs();
 
 #if CONFIG_CONSOLE_STORE_HISTORY
   //initialize_filesystem();
-  initialize_filesystem_sdmmc();
+  initialize_filesystem_sdmmc(); 
   ESP_LOGI("CONSOLE", "Command history enabled");
 #else
   ESP_LOGI("CONSOLE", "Command history disabled");
@@ -231,77 +222,14 @@ extern "C" void app_main(void) {
   // printf("\tESP-IDF version from app: %s\n", IDF_VER);
 
 
-  printRamInfoatBoot();
-
   // start_resource_monitor();
-  StartCLI(true);
+  //vTaskDelay(pdMS_TO_TICKS(1000));
+  StartCLI();
 
 }  // app_main
 
-/********************************************** */
-/*               FUNCTIONS                      */
-/********************************************** */
 
 
-/********************************************** */
-/* Print RAM info at boot time */
-// Aceasta functie afiseaza informatii despre RAM la boot
-// Este utila pentru a verifica daca PSRAM-ul este activat si configurat corect
-// Se apeleaza in app_main() dupa initializarea hardware-ului si a LVGL
-// Se foloseste heap_caps_get_total_size() si heap_caps_get_free_size() pentru a
-// obtine informatii despre diferitele tipuri de memorie RAM disponibile
-// Se afiseaza informatiile in formatul: "Total RAM memory: X bytes
-// "Free RAM memory: Y bytes"
-// Unde X este dimensiunea totala a memoriei RAM si Y este dimensiunea memoriei RAM libere
-// Se afiseaza informatii despre RAM intern, RAM-DMA, RAM 8 bit, RAM 32 bit, RTC RAM, PSRAM,
-// PSRAM 8 bit si PSRAM 32 bit
-// Se folosesc macro-urile MALLOC_CAP_INTERNAL, MALLOC_CAP_DMA, MALLOC_CAP_8BIT,
-// MALLOC_CAP_32BIT, MALLOC_CAP_RTCRAM si MALLOC_CAP_SPIRAM pentru a specifica tipul de memorie
-// Se folosesc functiile heap_caps_get_total_size() si heap_caps_get_free_size()
-// pentru a obtine dimensiunile memoriei RAM
-// Se afiseaza si dimensiunea stivei principale a task-ului principal
-// pentru a verifica daca este suficienta pentru a rula aplicatia
-// Se foloseste uxTaskGetStackHighWaterMark() pentru a obtine dimensiunea stivei
-// Se afiseaza informatiile in formatul: "Main task stack left: Z bytes"
-// Unde Z este dimensiunea stivei principale a task-ului principal
-// Aceasta functie este utila pentru a verifica daca aplicatia are suficiente resurse
-// pentru a rula corect si pentru a depista eventuale probleme de memorie
-// Este recomandat sa se apeleze aceasta functie la inceputul aplicatiei
-// pentru a avea o imagine de ansamblu asupra resurselor disponibile
-// si pentru a putea face ajustari daca este necesar
-// De exemplu, daca PSRAM-ul nu este activat, se poate activa in Kconfig
-// sau in codul sursa al aplicatiei
-// Daca PSRAM-ul este activat, se poate verifica daca este configurat corect
-// si daca este suficient pentru a rula aplicatia
-// Daca dimensiunea stivei principale a task-ului principal este prea mica,
-// se poate mari in Kconfig sau in codul sursa al aplicatiei
-void printRamInfoatBoot(void) {
-  ESP_LOGI("SYSTEM", "Total RAM          memory: %u bytes", heap_caps_get_total_size(MALLOC_CAP_INTERNAL));
-  ESP_LOGI("SYSTEM", "Free RAM           memory: %u bytes", heap_caps_get_free_size(MALLOC_CAP_INTERNAL));
-
-  ESP_LOGI("SYSTEM", "Total RAM-DMA      memory: %u bytes", heap_caps_get_total_size(MALLOC_CAP_DMA));
-  ESP_LOGI("SYSTEM", "Free RAM-DMA       memory: %u bytes", heap_caps_get_free_size(MALLOC_CAP_DMA));
-
-  ESP_LOGI("SYSTEM", "Total RAM 8 bit    memory: %u bytes", heap_caps_get_total_size(MALLOC_CAP_INTERNAL | MALLOC_CAP_8BIT));
-  ESP_LOGI("SYSTEM", "Free RAM 8 bit     memory: %u bytes", heap_caps_get_free_size(MALLOC_CAP_INTERNAL | MALLOC_CAP_8BIT));
-
-  ESP_LOGI("SYSTEM", "Total RAM 32 bit   memory: %u bytes", heap_caps_get_total_size(MALLOC_CAP_INTERNAL | MALLOC_CAP_32BIT));
-  ESP_LOGI("SYSTEM", "Free RAM 32 bit    memory: %u bytes", heap_caps_get_free_size(MALLOC_CAP_INTERNAL | MALLOC_CAP_32BIT));
-
-  ESP_LOGI("SYSTEM", "Total RTC RAM      memory: %u bytes", heap_caps_get_total_size(MALLOC_CAP_RTCRAM));
-  ESP_LOGI("SYSTEM", "Free RTC RAM       memory: %u bytes", heap_caps_get_free_size(MALLOC_CAP_RTCRAM));
-
-  ESP_LOGI("SYSTEM", "Total PSRAM        memory: %u bytes", heap_caps_get_total_size(MALLOC_CAP_SPIRAM));
-  ESP_LOGI("SYSTEM", "Free PSRAM         memory: %u bytes", heap_caps_get_free_size(MALLOC_CAP_SPIRAM));
-
-  ESP_LOGI("SYSTEM", "Total PSRAM 8 bit  memory: %u bytes", heap_caps_get_total_size(MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT));
-  ESP_LOGI("SYSTEM", "Free PSRAM 8 bit   memory: %u bytes", heap_caps_get_free_size(MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT));
-
-  ESP_LOGI("SYSTEM", "Total PSRAM 32 bit memory: %u bytes", heap_caps_get_total_size(MALLOC_CAP_SPIRAM | MALLOC_CAP_32BIT));
-  ESP_LOGI("SYSTEM", "Free PSRAM 32 bit  memory: %u bytes", heap_caps_get_free_size(MALLOC_CAP_SPIRAM | MALLOC_CAP_32BIT));
-
-  ESP_LOGI("STACK", "Main task stack left: %d bytes", uxTaskGetStackHighWaterMark(NULL) * sizeof(StackType_t));
-}  // printRamInfoatBoot
 
 /********************************************** */
 

@@ -30,7 +30,7 @@ extern "C"
     // register all commands
     void cli_register_all_commands(void);
 
-    void StartCLI(bool activate);
+    void StartCLI();
 
 #ifdef __cplusplus
 }

@@ -3,11 +3,19 @@
 #define CONSOLE_MAX_CMDLINE_LENGTH 256
 #define CONSOLE_PROMPT_MAX_LEN (32)
 
-#define CONFIG_CONSOLE_STORE_HISTORY 0
+#define CONFIG_CONSOLE_STORE_HISTORY 1
 #define CONFIG_CONSOLE_IGNORE_EMPTY_LINES 1
 #define PROMPT_STR CONFIG_IDF_TARGET
 
+#define SDCARD_USE
+
+#ifdef SDCARD_USE
 #define MOUNT_PATH "/sdcard"
 #define HISTORY_PATH MOUNT_PATH "/history.txt"
+#else
+#define MOUNT_PATH "/sdcard"
+#define HISTORY_PATH MOUNT_PATH "/history.txt"
+#endif /* #if SDCARD_USE */
+
 
 extern char prompt[CONSOLE_PROMPT_MAX_LEN];

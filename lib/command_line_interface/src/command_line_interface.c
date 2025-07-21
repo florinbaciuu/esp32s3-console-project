@@ -17,32 +17,31 @@
 void cli_register_all_commands(void)
 {
     esp_console_register_help_command(); // asta efunctia predefinita a esp -idf.. aici trebuie lucrat in contionuare
-
     cli_register_restart_command();
     cli_register_tasks_info_command();
     cli_register_uptime_command();
     cli_register_info_command();
+    return;
 }
 
 // -------------------------------------------------
 
 static const char *florios_banner =
-" ███████████ ████                      ███     ███████     █████████ \n"
-"░░███░░░░░░█░░███                     ░░░    ███░░░░░███  ███░░░░░███\n"
-" ░███   █ ░  ░███   ██████  ████████  ████  ███     ░░███░███    ░░░ \n"
-" ░███████    ░███  ███░░███░░███░░███░░███ ░███      ░███░░█████████ \n"
-" ░███░░░█    ░███ ░███ ░███ ░███ ░░░  ░███ ░███      ░███ ░░░░░░░░███\n"
-" ░███  ░     ░███ ░███ ░███ ░███      ░███ ░░███     ███  ███    ░███\n"
-" █████       █████░░██████  █████     █████ ░░░███████░  ░░█████████ \n"
-"░░░░░       ░░░░░  ░░░░░░  ░░░░░     ░░░░░    ░░░░░░░     ░░░░░░░░░  \n";
-
+    " ███████████ ████                      ███     ███████     █████████ \n"
+    "░░███░░░░░░█░░███                     ░░░    ███░░░░░███  ███░░░░░███\n"
+    " ░███   █ ░  ░███   ██████  ████████  ████  ███     ░░███░███    ░░░ \n"
+    " ░███████    ░███  ███░░███░░███░░███░░███ ░███      ░███░░█████████ \n"
+    " ░███░░░█    ░███ ░███ ░███ ░███ ░░░  ░███ ░███      ░███ ░░░░░░░░███\n"
+    " ░███  ░     ░███ ░███ ░███ ░███      ░███ ░░███     ███  ███    ░███\n"
+    " █████       █████░░██████  █████     █████ ░░░███████░  ░░█████████ \n"
+    "░░░░░       ░░░░░  ░░░░░░  ░░░░░     ░░░░░    ░░░░░░░     ░░░░░░░░░  \n";
 
 TaskHandle_t xHandle_esp32_cli;
 
 void printStartupMessage()
 {
     // printf("\n%s\n", florios_banner);  // Afișează blazonul
-    printf("\033[1;34m%s\033[0m\n", florios_banner); // albastru intens
+    //printf("\033[1;34m%s\033[0m\n", florios_banner); // albastru intens
 
     printf(
         "\n"
@@ -55,7 +54,7 @@ void printStartupMessage()
         "║  💣  Ctrl + C             →  Exit the console (if you dare)     ║\n"
         "╚═════════════════════════════════════════════════════════════════╝\n"
         "\n");
-        printf("Made by Florin Baciu.\n");
+    printf("Made by Florin Baciu.\n");
     if (linenoiseIsDumbMode())
     {
         printf(
@@ -69,6 +68,7 @@ void printStartupMessage()
     }
     printf("🚀 Welcome, Commander. System is ready for input.\n");
     printf("💭 Remember: even the most powerful systems wait for a single command...\n");
+    return;
 }
 
 void rtos_init_cli()
@@ -83,12 +83,14 @@ void rtos_init_cli()
      * This can be customized, made dynamic, etc.
      */
     const char *prompt = setup_prompt(PROMPT_STR ">");
+    vTaskDelay(10);
 
     /* Register commands */
     // esp_console_register_help_command();
     // register_system_common();
     // cli_register_custom_help_command(); // aici am modificat ultima pt tine alua sa vezi
     cli_register_all_commands(); // my command
+    return;
 }
 
 /********************************************** */
@@ -97,7 +99,9 @@ void rtos_init_cli()
 void console_app(void *parameter)
 {
     (void)parameter;
+    //vTaskDelay(300);
     rtos_init_cli();
+    //vTaskDelay(300);
     printStartupMessage();
 
     while (true)
@@ -152,22 +156,23 @@ void console_app(void *parameter)
 
     ESP_LOGE("CONSOLE", "Error or end-of-input, terminating console");
     esp_console_deinit();
+    return;
 }
 
 // -------------------------------
 
-void StartCLI(bool activate)
+void StartCLI()
 {
-    if (activate == true)
+    if (xHandle_esp32_cli == NULL)
     {
         xTaskCreatePinnedToCore(
             console_app,                           // Functia care ruleaza task-ul
             (const char *)"Console",               // Numele task-ului
-            (uint32_t)(10000),                     // Dimensiunea stack-ului
+            (uint32_t)(20000),                     // Dimensiunea stack-ului
             (NULL),                                // Parametri
             (UBaseType_t)configMAX_PRIORITIES - 6, // Prioritatea task-ului
             &xHandle_esp32_cli,                    // Handle-ul task-ului
-            ((1))                                  // Nucleul pe care ruleaza (ESP32 e dual-core)
+            ((0))                                  // Nucleul pe care ruleaza (ESP32 e dual-core)
         );
     }
 }
