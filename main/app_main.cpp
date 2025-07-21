@@ -148,6 +148,53 @@ static void initialize_nvs(void)
 
 // ----------------------------------------------------------
 
+esp_err_t initialize_eeproom()
+{
+  ESP_LOGI("eeproom", "🔧 Initializing NVS partition 'eeproom'...");
+
+  esp_err_t err = nvs_flash_init_partition("eeproom");
+  if (err == ESP_ERR_NVS_NO_FREE_PAGES || err == ESP_ERR_NVS_NEW_VERSION_FOUND)
+  {
+    ESP_LOGW("eeproom", "⚠️ NVS partition is full or version mismatch. Erasing...");
+
+    err = nvs_flash_erase_partition("eeproom");
+    if (err != ESP_OK)
+    {
+      ESP_LOGE("eeproom", "❌ Failed to erase 'eeproom' partition: %s", esp_err_to_name(err));
+      return err;
+    }
+
+    err = nvs_flash_init_partition("eeproom");
+    if (err != ESP_OK)
+    {
+      ESP_LOGE("eeproom", "❌ Failed to re-initialize 'eeproom' after erase: %s", esp_err_to_name(err));
+      return err;
+    }
+  }
+
+  if (err == ESP_OK)
+  {
+    ESP_LOGI("eeproom", "✅ NVS partition 'eeproom' initialized successfully");
+  }
+  else
+  {
+    ESP_LOGE("eeproom", "❌ Failed to initialize NVS: %s", esp_err_to_name(err));
+    return err;
+  }
+
+  // Deschidem un handle ca să verificăm spațiul
+  nvs_handle_t handle;
+  err = nvs_open_from_partition("eeproom", "diagnostic", NVS_READWRITE, &handle);
+  if (err != ESP_OK)
+  {
+    ESP_LOGE("eeproom", "❌ Can't open NVS handle for diagnostics: %s", esp_err_to_name(err));
+    return err;
+  }
+
+  nvs_close(handle);
+  return ESP_OK;
+}
+
 //---------
 
 /**********************
@@ -221,7 +268,9 @@ extern "C" void app_main(void)
   //// esp_log_level_set("*", ESP_LOG_MAX); //
   esp_log_level_set("*", ESP_LOG_INFO);
 
-  // initialize_nvs();
+  initialize_nvs();
+
+  ESP_ERROR_CHECK(initialize_eeproom());
 
 #if CONFIG_CONSOLE_STORE_HISTORY
 #ifdef SDCARD_USE
@@ -231,7 +280,7 @@ extern "C" void app_main(void)
   initialize_filesystem();
   ESP_LOGI("CONSOLE", "Command history enabled on Internal FAT partition");
 #endif /* #ifdef SDCARD_USE */
-  
+
 #else
   ESP_LOGI("CONSOLE", "Command history disabled");
 #endif
