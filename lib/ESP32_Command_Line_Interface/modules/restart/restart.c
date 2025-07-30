@@ -11,7 +11,7 @@
 #include "freertos/task.h"
 #include "sdkconfig.h"
 
-static const char *TAG = "restart_cmd";
+static const char *TAG = "Restart CMD";
 
 static int restart(int argc, char **argv)
 {

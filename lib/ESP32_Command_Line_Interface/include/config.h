@@ -7,7 +7,7 @@
 #define CONFIG_CONSOLE_IGNORE_EMPTY_LINES 1
 #define PROMPT_STR CONFIG_IDF_TARGET
 
-//#define SDCARD_USE
+#define SDCARD_USE
 
 #ifdef SDCARD_USE
 #define MOUNT_PATH "/sdcard"

@@ -25,7 +25,7 @@
 
 #include "wifi_cmd.h"
 
-static const char *TAG = "wifi_cmd";
+static const char *TAG = "WiFi join CMD";
 
 #define JOIN_TIMEOUT_MS (10000)
 
@@ -136,7 +136,7 @@ void register_wifi_join(void)
     };
 
     ESP_ERROR_CHECK( esp_console_cmd_register(&join_cmd) );
-    ESP_LOGI("wifi_cmd", "wifi commands registered (f) !");
+    ESP_LOGI(TAG, "wifi commands registered (f) !");
 
 }
 

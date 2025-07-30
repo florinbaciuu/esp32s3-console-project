@@ -9,7 +9,7 @@
 #include "argtable3/argtable3.h"
 #include "set_log.h"
 
-static const char *TAG = "set_log_cmd";
+static const char *TAG = "Set Log CMD";
 
 /** log_level command changes log level via esp_log_level_set */
 static struct {

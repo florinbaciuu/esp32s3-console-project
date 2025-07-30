@@ -25,7 +25,7 @@
 #define CONFIG_APP_PROJECT_VER "0.0.1"
 
 // tagul principal
-static const char *TAG = "CLI INFO";
+static const char *TAG = "Info CMD";
 
 // -------------------------------
 

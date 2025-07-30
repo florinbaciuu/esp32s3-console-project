@@ -1,5 +1,7 @@
 ﻿
-
+# Se adauga modulul hello
+set(hello_cmd_srcs "modules/hello/hello.c")
+set(hello_cmd_includes "modules/hello")
 
 # Se adauga restart
 set(restart_srcs "modules/restart/restart.c")
@@ -15,7 +17,7 @@ set(uptime_srcs "modules/uptime/uptime.c")
 set(uptime_includes "modules/uptime")
 
 # Se adauga modulul info
-set(info_srcs "modules/info/info.c" "modules/info/funct.c")
+set(info_srcs "modules/info/info.c" "modules/info/funct.c" "modules/info/stack.c")
 set(info_includes "modules/info")
 
 # Se adauga modulul nvs
@@ -33,9 +35,9 @@ set(set_cmd_includes "modules/set_cmd")
 # ------------------------------ #
 
 # Aduna toate modulele intr-un singur
-set(modules_srcs  ${restart_srcs} ${tasks_srcs}  ${uptime_srcs} ${info_srcs} ${nvs_cmd_srcs} ${wifi_cmd_srcs} ${set_cmd_srcs})
-set(modules_includes  ${restart_includes} ${tasks_includes}  ${uptime_includes} ${info_includes} ${nvs_cmd_includes} ${wifi_cmd_includes} ${set_cmd_includes})
-set(modules_priv_includes  ${restart_includes} ${tasks_includes}  ${uptime_includes} ${info_includes} ${nvs_cmd_includes} ${wifi_cmd_includes} ${set_cmd_includes})
+set(modules_srcs ${hello_cmd_srcs} ${restart_srcs} ${tasks_srcs}  ${uptime_srcs} ${info_srcs} ${nvs_cmd_srcs} ${wifi_cmd_srcs} ${set_cmd_srcs})
+set(modules_includes ${hello_cmd_includes} ${restart_includes} ${tasks_includes}  ${uptime_includes} ${info_includes} ${nvs_cmd_includes} ${wifi_cmd_includes} ${set_cmd_includes})
+set(modules_priv_includes ${hello_cmd_includes} ${restart_includes} ${tasks_includes}  ${uptime_includes} ${info_includes} ${nvs_cmd_includes} ${wifi_cmd_includes} ${set_cmd_includes})
 
 # ------------------------------- #
 

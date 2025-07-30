@@ -13,7 +13,7 @@
 
 #include "tasks_nfo.h"
 
-static const char *TAG = "TASKS INFO";
+static const char *TAG = "Tasks CMD";
 
 #define TASK_MAX_COUNT 40
 #define SECONDS_TO_MICROSECONDS(x) ((x) * 1000000)

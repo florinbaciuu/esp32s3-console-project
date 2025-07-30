@@ -5,7 +5,7 @@
 #include "set_log.h"
 #include <string.h>
 
-static const char *TAG = "set_cmd";
+static const char *TAG = "Set CMD";
 
 static struct {
     struct arg_str* subcommand;
@@ -141,7 +141,7 @@ void cli_register_set_command(void) {
     };
 
     ESP_ERROR_CHECK(esp_console_cmd_register(&cmd));
-    ESP_LOGI("set_cmd", "'%s' command registered.", cmd.command);
+    ESP_LOGI(TAG, "'%s' command registered.", cmd.command);
     return;
 }
 

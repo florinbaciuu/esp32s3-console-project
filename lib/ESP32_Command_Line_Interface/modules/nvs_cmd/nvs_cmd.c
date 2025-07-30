@@ -21,7 +21,7 @@
 #include <string.h>
 #include "nvs_cmd.h"
 
-static const char *TAG = "nvs_cmd";
+static const char *TAG = "NVS CMD";
 
 typedef struct {
     nvs_type_t type;
