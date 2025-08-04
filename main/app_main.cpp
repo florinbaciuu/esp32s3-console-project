@@ -1,19 +1,16 @@
 /**
- * @file      app_main.cpp.
+ * @file : app_main.cpp.
+ * @author : baf
+ * board : t-hmi
  */
 
 /*********************
  *      DEFINES
  *********************/
 #define PWR_EN_PIN (10) // connected to the battery alone
+#define PWR_ON_PIN (14)
+#define Dellp_OFF_PIN (21) // ? IDK what it is ???
 //---------
-#define PWR_ON_PIN                                                                                 \
-    (14) // if you use an ext 5V power supply, you need to bring a magnet close to the ReedSwitch
-         // and set the PowerOn Pin (GPIO14) to HIGH
-#define Dellp_OFF_PIN                                                                              \
-    (21) // connected to the battery and the USB power supply, used to turn off the device
-//---------
-
 //---------
 
 /*********************
@@ -21,15 +18,13 @@
  *********************/
 extern "C" {
 #include <stdio.h>
-
-#include "ResourceMonitor.h"
 #include "driver/gpio.h"
 #include "esp_bootloader_desc.h"
 #include "esp_log.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
-
 #include "argtable3/argtable3.h"
+#include "linenoise/linenoise.h"
 #include "driver/sdmmc_host.h"
 #include "driver/usb_serial_jtag.h"
 #include "driver/usb_serial_jtag_vfs.h"
@@ -37,7 +32,6 @@ extern "C" {
 #include "esp_event.h"
 #include "esp_system.h"
 #include "esp_vfs_fat.h"
-#include "linenoise/linenoise.h"
 #include "nvs.h"
 #include "nvs_flash.h"
 #include "sdmmc_cmd.h"
@@ -55,60 +49,56 @@ extern "C" {
 // ----------------------------------------------------------
 // ----------------------------------------------------------
 
-#define SD_CS_PIN (15) // Chip Select pentru SPI
+/**********************
+ *   SD MMC DEFINES
+ **********************/
+#define SD_CS_PIN (15)
 #define SD_MISO_PIN (13)
 #define SD_MOSI_PIN (11)
 #define SD_SCLK_PIN (12)
 #define SDIO_DATA0_PIN (13)
 #define SDIO_CMD_PIN (11)
 #define SDIO_SCLK_PIN (12)
-
+//---
 #define SD_FREQ_DEFAULT 20000   /*!< SD/MMC Default speed (limited by clock divider) */
 #define SD_FREQ_HIGHSPEED 40000 /*!< SD High speed (limited by clock divider) */
 
+/**********************
+ *   Console history
+ **********************/
 /* Console command history can be stored to and loaded from a file.
  * The easiest way to do this is to use FATFS filesystem on top of
  * wear_levelling library.
  */
 #if CONFIG_CONSOLE_STORE_HISTORY
-
+#ifdef SDCARD_USE
 void initialize_filesystem_sdmmc2() {
     esp_vfs_fat_mount_config_t mount_config = {.format_if_mount_failed = false,
         .max_files                                                     = 4,
         .allocation_unit_size                                          = 16 * 1024,
         .disk_status_check_enable                                      = false,
         .use_one_fat                                                   = false};
-
-    sdmmc_card_t* card;
-    const char    mount_point[] = MOUNT_PATH;
-
-    // Configurare SDMMC host
-    sdmmc_host_t host = SDMMC_HOST_DEFAULT();
-
-    // Configurare pini slot SDMMC
-    sdmmc_slot_config_t slot_config = SDMMC_SLOT_CONFIG_DEFAULT();
+    sdmmc_card_t*              card;
+    const char                 mount_point[] = MOUNT_PATH;
+    sdmmc_host_t               host          = SDMMC_HOST_DEFAULT(); // Configurare SDMMC host
+    sdmmc_slot_config_t slot_config = SDMMC_SLOT_CONFIG_DEFAULT();   // Configurare pini slot SDMMC
     slot_config.clk                 = (gpio_num_t) SDIO_SCLK_PIN;
     slot_config.cmd                 = (gpio_num_t) SDIO_CMD_PIN;
     slot_config.d0                  = (gpio_num_t) SDIO_DATA0_PIN;
     slot_config.width               = 1; // 1-bit mode
-
-    // (daca ai pull-up externi, poți comenta linia de mai jos)
     gpio_set_pull_mode((gpio_num_t) SDIO_CMD_PIN, GPIO_PULLUP_ONLY);
     gpio_set_pull_mode((gpio_num_t) SDIO_DATA0_PIN, GPIO_PULLUP_ONLY);
     gpio_set_pull_mode((gpio_num_t) SDIO_SCLK_PIN, GPIO_PULLUP_ONLY);
-
     esp_err_t ret = esp_vfs_fat_sdmmc_mount(mount_point, &host, &slot_config, &mount_config, &card);
     if (ret != ESP_OK)
     {
         ESP_LOGE("SD", "Failed to mount SDMMC (%s)", esp_err_to_name(ret));
         return;
     }
-
     ESP_LOGI("SD", "SD card mounted at %s", mount_point);
     sdmmc_card_print_info(stdout, card);
 }
 
-#ifdef SDCARD_USE
 esp_err_t initialize_filesystem_sdmmc() {
     esp_vfs_fat_mount_config_t mount_config = {.format_if_mount_failed = false,
         .max_files                                                     = 4,
@@ -134,16 +124,12 @@ esp_err_t initialize_filesystem_sdmmc() {
         sdmmc_host_deinit();
         return ret;
     }
-
     ESP_LOGI("SD", "SD card mounted at %s", mount_point);
     sdmmc_card_print_info(stdout, card);
     return ESP_OK;
 }
-
-#else
-
-// Handle of the wear levelling library instance
-static wl_handle_t s_wl_handle = WL_INVALID_HANDLE;
+#else  /* !(SDCARD_USE) */
+static wl_handle_t s_wl_handle = WL_INVALID_HANDLE; // Handle of the wear levelling library instance
 
 esp_err_t initialize_filesystem() {
     const esp_vfs_fat_mount_config_t config = {
@@ -163,8 +149,13 @@ esp_err_t initialize_filesystem() {
     ESP_LOGI("ffat", "Mounted FATFS at %s", MOUNT_PATH);
     return ESP_OK;
 }
-#endif /* #ifdef (SDCARD_USE) */
+#endif /* (SDCARD_USE) */
+#else  /*  !(CONFIG_CONSOLE_STORE_HISTORY) */
+#endif /* (CONFIG_CONSOLE_STORE_HISTORY) */
 
+/**********************
+ *   FS
+ **********************/
 void init_filesystem() {
 #if CONFIG_CONSOLE_STORE_HISTORY
     esp_err_t history_fs_ok = ESP_OK;
@@ -179,7 +170,7 @@ void init_filesystem() {
             "Failed to enable file system on SDCARD (%s)",
             esp_err_to_name(history_fs_ok));
     }
-#else
+#else  /*  !(SDCARD_USE) */
     history_fs_ok = initialize_filesystem();
     if (history_fs_ok == ESP_OK)
     {
@@ -190,8 +181,7 @@ void init_filesystem() {
             "Failed to enable file system on FFAT (%s)",
             esp_err_to_name(history_fs_ok));
     }
-#endif /* #ifdef SDCARD_USE */
-
+#endif /* (SDCARD_USE) */
     if (history_fs_ok == ESP_OK)
     {
         cli_set_history_path(MOUNT_PATH "/history.txt");
@@ -201,14 +191,11 @@ void init_filesystem() {
         ESP_LOGW("CLI", "⚠️ Filesystem not mounted, disabling command history");
         cli_set_history_path(NULL); // fără history
     }
-#else
+#else  /* !(CONFIG_CONSOLE_STORE_HISTORY)  */
     ESP_LOGI("CONSOLE", "Command history disabled");
-#endif /* #if CONFIG_CONSOLE_STORE_HISTORY */
+    //// #define HISTORY_PATH NULL
+#endif /* if (CONFIG_CONSOLE_STORE_HISTORY) */
 }
-
-#else
-// #define HISTORY_PATH NULL
-#endif // CONFIG_CONSOLE_STORE_HISTORY
 
 static void initialize_nvs(void) {
     esp_err_t err = nvs_flash_init();
@@ -224,7 +211,6 @@ static void initialize_nvs(void) {
 
 esp_err_t initialize_eeproom() {
     ESP_LOGI("eeproom", "🔧 Initializing NVS partition 'eeproom'...");
-
     esp_err_t err = nvs_flash_init_partition("eeproom");
     if (err == ESP_ERR_NVS_NO_FREE_PAGES || err == ESP_ERR_NVS_NEW_VERSION_FOUND)
     {
@@ -252,8 +238,7 @@ esp_err_t initialize_eeproom() {
         ESP_LOGE("eeproom", "❌ Failed to initialize NVS: %s", esp_err_to_name(err));
         return err;
     }
-    // Deschidem un handle ca să verificăm spațiul
-    nvs_handle_t handle;
+    nvs_handle_t handle; // Deschidem un handle ca să verificăm spațiul
     err = nvs_open_from_partition("eeproom", "diagnostic", NVS_READWRITE, &handle);
     if (err != ESP_OK)
     {
@@ -271,9 +256,8 @@ esp_err_t initialize_eeproom() {
  **********************/
 //---------
 void power_latch_init_5V(uint32_t mode) {
-    // Setăm ambii pini ca output
     gpio_config_t io_conf = {
-        .pin_bit_mask = (1ULL << PWR_EN_PIN) | (1ULL << PWR_ON_PIN),
+        .pin_bit_mask = (1ULL << PWR_EN_PIN) | (1ULL << PWR_ON_PIN), // Setăm ambii pini ca output
         .mode         = GPIO_MODE_OUTPUT,
         .pull_up_en   = GPIO_PULLUP_DISABLE,
         .pull_down_en = GPIO_PULLDOWN_DISABLE,
@@ -294,9 +278,6 @@ void power_latch_init_Battery() {
     gpio_set_level((gpio_num_t) PWR_EN_PIN, 1); // ⚡ ține placa aprinsă
 }
 //---------
-//---------
-
-//---------
 
 /*
 ███████ ██████  ███████ ███████ ██████ ████████  ██████  ███████ 
@@ -304,15 +285,13 @@ void power_latch_init_Battery() {
 █████   ██████  █████   █████   ██████    ██    ██    ██ ███████ 
 ██      ██   ██ ██      ██      ██   ██   ██    ██    ██      ██ 
 ██      ██   ██ ███████ ███████ ██   ██   ██     ██████  ███████ 
+'// ⚡
 */
 
 /*********************
- *  rtos variables
+ *  ...
  *********************/
 //---------
-
-//---------
-
 /****************************/
 //--------------------------------------
 
@@ -322,9 +301,8 @@ void power_latch_init_Battery() {
 ██ ████ ██ ███████ ██ ██ ██  ██ 
 ██  ██  ██ ██   ██ ██ ██  ██ ██ 
 ██      ██ ██   ██ ██ ██   ████ 
-  * This is the main entry point of the application.
-  * It initializes the hardware, sets up the display, and starts the LVGL tasks.
-  * The application will run indefinitely until the device is powered off or reset.
+  ! This is the main entry point of the application.
+  ! The application will run indefinitely until the device is powered off or reset.
 */
 extern "C" void app_main(void) {
     vTaskDelay(pdMS_TO_TICKS(100));
@@ -332,25 +310,20 @@ extern "C" void app_main(void) {
     vTaskDelay(pdMS_TO_TICKS(100));
     esp_log_level_set("*", ESP_LOG_INFO);
     vTaskDelay(pdMS_TO_TICKS(100));
-
     esp_bootloader_desc_t bootloader_desc;
     ESP_LOGI("Bootloader", "DEtails about bootloader:\n");
     esp_rom_printf("\tESP-IDF version from 2nd stage bootloader: %s\n", bootloader_desc.idf_ver);
     esp_rom_printf("\tESP-IDF version from app: %s\n", IDF_VER);
-
-    // start_resource_monitor();
+    //// start_resource_monitor();
     heap_caps_print_heap_info(MALLOC_CAP_INTERNAL);
     vTaskDelay(pdMS_TO_TICKS(100));
     init_filesystem();
-    // initialize_nvs();
-    // ESP_ERROR_CHECK(initialize_eeproom());
+    //// initialize_nvs();
+    //// ESP_ERROR_CHECK(initialize_eeproom());
     vTaskDelay(pdMS_TO_TICKS(100));
     StartCLI();
-
 } // app_main
-
 /********************************************** */
-
 /**********************
  *   END OF FILE
  **********************/
