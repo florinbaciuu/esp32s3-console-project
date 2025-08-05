@@ -247,7 +247,9 @@
 			"text_encoding": "c",
 			"typeinfo": "c",
 			"esp_console.h": "c",
-			"argtable3.h": "c"
+			"argtable3.h": "c",
+			"freertos.h": "c",
+			"sdmmc_cmd.h": "c"
 		},
 		//------------------------------------------------------------------
 		"accessibility.underlineLinks": true,
