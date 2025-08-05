@@ -3,20 +3,20 @@
  */
 
 // include/command_line_interface.h
-#include "command_line_interface.h"
+#include "one-cli.h"
 
 // modules includes
-
-#include "modules/hello/hello.h"
-#include "modules/info/info.h"
+#include "modules/hello_cmd/hello_cmd.h"
+#include "modules/info_cmd/info_cmd.h"
 #include "modules/nvs_cmd/nvs_cmd.h"
-#include "modules/restart/restart.h"
+#include "modules/restart_cmd/restart_cmd.h"
 #include "modules/set_cmd/set_cmd.h"
-#include "modules/tasks/tasks.h"
-#include "modules/uptime/uptime.h"
+#include "modules/tasks_cmd/tasks_cmd.h"
+#include "modules/uptime_cmd/uptime_cmd.h"
 #include "modules/wifi_cmd/wifi_cmd.h"
+#include "modules/perfmon_cmd/perfmon_cmd.h"
 
-static const char* TAG = "CLI";
+static const char* TAG = "OneCLI";
 
 // -------------------------------------------------
 
@@ -32,6 +32,7 @@ void cli_register_all_commands(void) {
     //// cli_register_nsv_command(); // TODO de implementat cum trebuie
     cli_register_WiFi_join_command();
     cli_register_set_command();
+    cli_register_perfmon_command();
     return;
 }
 
@@ -47,28 +48,32 @@ static const char* florios_banner =
     " █████       █████░░██████  █████     █████ ░░░███████░  ░░█████████ \n"
     "░░░░░       ░░░░░  ░░░░░░  ░░░░░     ░░░░░    ░░░░░░░     ░░░░░░░░░  \n";
 
-TaskHandle_t xHandle_esp32_cli;
+TaskHandle_t OneCLI_xHandle;
 
 void printStartupMessage() {
     // printf("\n%s\n", florios_banner);  // Afișează blazonul
     // printf("\033[1;34m%s\033[0m\n", florios_banner); // albastru intens
 
-    printf("\n"
-           "╔═════════════════════════════════════════════════════════════════╗\n"
-           "║                    🔧 FloriOS Console Online 🔧                 ║\n"
-           "╠═════════════════════════════════════════════════════════════════╣\n"
-           "║  🕹️  Type 'help'           →  List all available commands        ║\n"
-           "║  🔁  Use ↑ / ↓            →  Navigate command history           ║\n"
-           "║  ⚡  Press [TAB]          →  Auto-complete command names        ║\n"
-           "║  💣  Ctrl + C             →  Exit the console (if you dare)     ║\n"
-           "╚═════════════════════════════════════════════════════════════════╝\n"
-           "\n");
+    printf(
+        "\n"
+        "╔═════════════════════════════════════════════════════════════════╗\n"
+        "║                    🔧 FloriOS Console Online 🔧                 ║\n"
+        "╠═════════════════════════════════════════════════════════════════╣\n"
+        "║  🕹️  Type 'help'           →  List all available commands        ║\n"
+        "║  🔁  Use ↑ / ↓            →  Navigate command history           ║\n"
+        "║  ⚡  Press [TAB]          →  Auto-complete command names        ║\n"
+        "║  💣  Ctrl + C             →  Exit the console (if you dare)     ║\n"
+        "╚═════════════════════════════════════════════════════════════════╝\n"
+        "\n");
     printf("Made by Florin Baciu.\n");
-    if (linenoiseIsDumbMode()) {
-        printf("⚠️  Terminal dumb mode detected!\n"
-               "Line editing and history are disabled.\n"
-               "💡 Try using a better terminal (like PuTTY or Minicom).\n\n");
-    } else {
+    if (linenoiseIsDumbMode())
+    {
+        printf(
+            "⚠️  Terminal dumb mode detected!\n"
+            "Line editing and history are disabled.\n"
+            "💡 Try using a better terminal (like PuTTY or Minicom).\n\n");
+    } else
+    {
         printf("🧠 Terminal capabilities: FULLY ENABLED\n\n");
     }
     printf("🚀 Welcome, Commander. System is ready for input.\n");
@@ -81,7 +86,8 @@ void printStartupMessage() {
 static char s_history_path[64] = MOUNT_PATH "/history.txt";
 
 void cli_set_history_path(const char* path) {
-    if (path == NULL) {
+    if (path == NULL)
+    {
         ESP_LOGW(TAG, "No history path provided, using default: %s", s_history_path);
         return;
     }
@@ -115,54 +121,61 @@ void rtos_init_cli() {
 /*                   TASK                       */
 /********************************************** */
 void console_app(void* parameter) {
-    (void)parameter;
+    (void) parameter;
     // vTaskDelay(300);
     rtos_init_cli();
     // vTaskDelay(300);
     printStartupMessage();
 
-    while (true) {
+    while (true)
+    {
         char* line = linenoise(prompt);
 
 #if CONFIG_CONSOLE_IGNORE_EMPTY_LINES
-        if (line == NULL) { /* Ignore empty lines */
+        if (line == NULL)
+        { /* Ignore empty lines */
             continue;
             ;
         }
 #else
-        if (line == NULL) { /* Break on EOF or error */
+        if (line == NULL)
+        { /* Break on EOF or error */
             break;
         }
 #endif // CONFIG_CONSOLE_IGNORE_EMPTY_LINES
 
         /* Add the command to the history if not empty*/
-        if (strlen(line) > 0) {
+        if (strlen(line) > 0)
+        {
             linenoiseHistoryAdd(line);
 #if CONFIG_CONSOLE_STORE_HISTORY
             /* Save command history to filesystem */
-            if (s_history_path[0] != '\0') { // avem path valid
+            if (s_history_path[0] != '\0')
+            { // avem path valid
                 linenoiseHistorySave(s_history_path);
             }
 #endif // CONFIG_CONSOLE_STORE_HISTORY
         }
 
         /* Try to run the command */
-        int ret;
+        int       ret;
         esp_err_t err = esp_console_run(line, &ret);
-        if (err == ESP_ERR_NOT_FOUND) {
+        if (err == ESP_ERR_NOT_FOUND)
+        {
             printf("Unrecognized command\n");
-        } else if (err == ESP_ERR_INVALID_ARG) {
+        } else if (err == ESP_ERR_INVALID_ARG)
+        {
             // command was empty
-        } else if (err == ESP_OK && ret != ESP_OK) {
+        } else if (err == ESP_OK && ret != ESP_OK)
+        {
             printf("Command returned non-zero error code: 0x%x (%s)\n", ret, esp_err_to_name(ret));
-        } else if (err != ESP_OK) {
-            printf("Internal error: %s\n", esp_err_to_name(err));
-        }
+        } else if (err != ESP_OK)
+        { printf("Internal error: %s\n", esp_err_to_name(err)); }
         /* linenoise allocates line buffer on the heap, so need to free it */
         linenoiseFree(line);
     }
 
-    ESP_LOGE("CONSOLE", "Error or end-of-input, terminating console");
+    ESP_LOGE(TAG, "Error or end-of-input, terminating console");
     esp_console_deinit();
     return;
 }
@@ -170,13 +183,14 @@ void console_app(void* parameter) {
 // -------------------------------
 
 void StartCLI() {
-    if (xHandle_esp32_cli == NULL) {
+    if (OneCLI_xHandle == NULL)
+    {
         xTaskCreatePinnedToCore(console_app,        // Functia care ruleaza task-ul
-            (const char*)"TaskConsole",             // Numele task-ului
-            (uint32_t)(16000),                      // Dimensiunea stack-ului
+            (const char*) "OneCLI xTask",           // Numele task-ului
+            (uint32_t) (14000),                     // Dimensiunea stack-ului
             (NULL),                                 // Parametri
-            (UBaseType_t)configMAX_PRIORITIES - 10, // Prioritatea task-ului
-            &xHandle_esp32_cli,                     // Handle-ul task-ului
+            (UBaseType_t) configMAX_PRIORITIES - 5, // Prioritatea task-ului
+            &OneCLI_xHandle,                        // Handle-ul task-ului
             ((0))                                   // Nucleul pe care ruleaza (ESP32 e dual-core)
         );
     }

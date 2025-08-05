@@ -1,11 +1,12 @@
-#include "argtable3/argtable3.h"
+
 #include "esp_console.h"
+#include "argtable3/argtable3.h"
 #include "esp_log.h"
 #include <string.h>
 
 #include "funct.h"
 #include "stack.h"
-#include "info.h"
+#include "info_cmd.h"
 
 static const char* TAG = "Info Command";
 

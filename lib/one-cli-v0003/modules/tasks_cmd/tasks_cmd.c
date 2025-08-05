@@ -1,3 +1,4 @@
+#include "tasks_cmd.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -14,7 +15,7 @@
 #include <time.h>
 #include "argtable3/argtable3.h"
 
-#include "tasks.h"
+
 
 static const char* TAG = "Tasks Command";
 

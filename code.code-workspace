@@ -249,7 +249,14 @@
 			"esp_console.h": "c",
 			"argtable3.h": "c",
 			"freertos.h": "c",
-			"sdmmc_cmd.h": "c"
+			"sdmmc_cmd.h": "c",
+			"perfmon.h": "c",
+			"hello_cmd.h": "c",
+			"info_cmd.h": "c",
+			"tasks_cmd.h": "c",
+			"uptime_cmd.h": "c",
+			"wifi_cmd.h": "c",
+			"perfmon_cmd.h": "c"
 		},
 		//------------------------------------------------------------------
 		"accessibility.underlineLinks": true,

@@ -2,7 +2,7 @@
 #include "esp_timer.h"
 #include "esp_console.h"
 #include "esp_log.h"
-#include "hello.h"
+#include "hello_cmd.h"
 
 static const char *TAG = "Hello Command";
 

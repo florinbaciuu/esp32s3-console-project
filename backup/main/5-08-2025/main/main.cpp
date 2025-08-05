@@ -39,7 +39,7 @@ extern "C" {
 #include <unistd.h>
 
 // my includes (from lib folder)
-#include "one-cli.h"
+#include "command_line_interface.h"
 #include "filesystem-os.h"
 }
 

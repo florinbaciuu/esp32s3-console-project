@@ -1,4 +1,7 @@
 
+#pragma once
+
+
 #define CONSOLE_MAX_CMDLINE_ARGS (8)
 #define CONSOLE_MAX_CMDLINE_LENGTH (256)
 #define CONSOLE_PROMPT_MAX_LEN (32)

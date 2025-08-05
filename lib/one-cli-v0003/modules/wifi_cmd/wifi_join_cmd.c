@@ -12,6 +12,9 @@
    CONDITIONS OF ANY KIND, either express or implied.
 */
 
+
+#include "wifi_cmd.h"
+
 #include <stdio.h>
 #include <string.h>
 #include "esp_log.h"
@@ -23,7 +26,7 @@
 #include "esp_netif.h"
 #include "esp_event.h"
 
-#include "wifi_cmd.h"
+
 
 static const char *TAG = "WiFi Join Command";
 
