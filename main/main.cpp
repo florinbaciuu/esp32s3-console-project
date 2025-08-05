@@ -218,6 +218,9 @@ extern "C" void app_main(void) {
     heap_caps_print_heap_info(MALLOC_CAP_INTERNAL);
     vTaskDelay(pdMS_TO_TICKS(100));
     init_cli_filesystem_history();
+
+    initialize_internal_fat_filesystem();
+    initialize_filesystem_littlefs(); // aici e aici sa vedem ce se intampla
     //// initialize_nvs();
     //// ESP_ERROR_CHECK(initialize_eeproom());
     vTaskDelay(pdMS_TO_TICKS(100));

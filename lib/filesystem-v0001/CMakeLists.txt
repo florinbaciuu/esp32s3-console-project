@@ -24,6 +24,7 @@ set(
     log
     spi_flash
     fatfs
+    littlefs
 )
 
 idf_component_register(
