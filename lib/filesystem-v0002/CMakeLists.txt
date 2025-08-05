@@ -3,6 +3,10 @@
 set(
     srcs 
     "src/filesystem-os.c"
+    "src/eMMC_fs.c"
+    "src/FAT_fs.c"
+    "src/LITTLE_fs.c"
+    "src/SPIF_fs.c"
 )
 
 set(

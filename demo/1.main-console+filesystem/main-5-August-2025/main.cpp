@@ -39,7 +39,7 @@ extern "C" {
 #include <unistd.h>
 
 // my includes (from lib folder)
-#include "command_line_interface.h"
+#include "one-cli.h"
 #include "filesystem-os.h"
 }
 
@@ -55,6 +55,8 @@ extern "C" {
 /* Console command history can be stored to and loaded from a file.
  * The easiest way to do this is to use FATFS filesystem on top of
  * wear_levelling library.
+ TODO AICI TREBUIE SA PUN DETECTIE DACA S-A MAI CHEMAT INITIALIZAREA CATRE SDMMC CA SA POT SA FAC INITIALIZARE IN ORICE MOMENT.. ISTORIA TREBUIE
+ TODO DOAR SA STIE DACA S-A INITIALIZAT SI APOI SA ISI FACA TREABA, ATAT.. ORICUM SUNT APROAPE DE ASTA DAR SA NU UITI!!!!
  */
 void init_cli_filesystem_history() {
 #if CONFIG_CONSOLE_STORE_HISTORY
@@ -108,7 +110,9 @@ static void initialize_nvs(void) {
 }
 
 // ----------------------------------------------------------
-
+/*
+ TODO SI AICI TREBUIE SA FAC CEVA CU EEPROOM SA MA GANDESC DACA IL BAG IN FILESYSTEM SAU II FAC COMPONENTA. MA MAI GANDESC
+ */
 esp_err_t initialize_eeproom() {
     ESP_LOGI("eeproom", "🔧 Initializing NVS partition 'eeproom'...");
     esp_err_t err = nvs_flash_init_partition("eeproom");
@@ -205,23 +209,31 @@ void power_latch_init_Battery() {
   ! The application will run indefinitely until the device is powered off or reset.
 */
 extern "C" void app_main(void) {
-    vTaskDelay(pdMS_TO_TICKS(100));
+    vTaskDelay(pdMS_TO_TICKS(150));
     power_latch_init_5V(true);
-    vTaskDelay(pdMS_TO_TICKS(100));
+    vTaskDelay(pdMS_TO_TICKS(150));
     esp_log_level_set("*", ESP_LOG_INFO);
-    vTaskDelay(pdMS_TO_TICKS(100));
+    vTaskDelay(pdMS_TO_TICKS(150));
     esp_bootloader_desc_t bootloader_desc;
-    ESP_LOGI("Bootloader", "DEtails about bootloader:\n");
+    ESP_LOGI("Bootloader", "Details about bootloader:\n");
     esp_rom_printf("\tESP-IDF version from 2nd stage bootloader: %s\n", bootloader_desc.idf_ver);
     esp_rom_printf("\tESP-IDF version from app: %s\n", IDF_VER);
-    //// start_resource_monitor();
-    heap_caps_print_heap_info(MALLOC_CAP_INTERNAL);
-    vTaskDelay(pdMS_TO_TICKS(100));
-    init_cli_filesystem_history();
+    vTaskDelay(pdMS_TO_TICKS(150));
     //// initialize_nvs();
     //// ESP_ERROR_CHECK(initialize_eeproom());
-    vTaskDelay(pdMS_TO_TICKS(100));
+    heap_caps_print_heap_info(MALLOC_CAP_INTERNAL);
+    vTaskDelay(pdMS_TO_TICKS(150));
+    initialize_internal_fat_filesystem();
+    vTaskDelay(pdMS_TO_TICKS(250));
+    initialize_filesystem_littlefs(); // aici e aici sa vedem ce se intampla
+    vTaskDelay(pdMS_TO_TICKS(250));
+    initialize_filesystem_spiffs();
+    vTaskDelay(pdMS_TO_TICKS(250));
+    init_cli_filesystem_history();
+    vTaskDelay(pdMS_TO_TICKS(250));
     StartCLI();
+    vTaskDelay(pdMS_TO_TICKS(250));
+    // Aici app main trebuie sa dea return.
 } // app_main
 /********************************************** */
 /**********************

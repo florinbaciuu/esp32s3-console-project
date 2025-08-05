@@ -16,8 +16,7 @@
 #include "argtable3/argtable3.h"
 
 
-
-static const char* TAG = "Tasks Command";
+static const char *TAG = "CLI";
 
 #define TASK_MAX_COUNT 40
 #define SECONDS_TO_MICROSECONDS(x) ((x) * 1000000)

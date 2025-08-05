@@ -28,7 +28,7 @@
 
 
 
-static const char *TAG = "WiFi Join Command";
+static const char *TAG = "CLI";
 
 #define JOIN_TIMEOUT_MS (10000)
 

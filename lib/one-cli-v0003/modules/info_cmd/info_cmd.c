@@ -8,7 +8,7 @@
 #include "stack.h"
 #include "info_cmd.h"
 
-static const char* TAG = "Info Command";
+static const char *TAG = "CLI";
 
 // ------------------------------
 

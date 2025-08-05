@@ -4,7 +4,7 @@
 #include "esp_log.h"
 #include "hello_cmd.h"
 
-static const char *TAG = "Hello Command";
+static const char *TAG = "CLI";
 
 static int hello_command(int argc, char **argv)
 {

@@ -17,7 +17,7 @@ set(
 )
 
 set(
-    app_requires 
+    app_requires
     driver
     fatfs
     spi_flash
@@ -30,7 +30,7 @@ set(
 )
 
 set(
-    app_priv_requires 
+    app_priv_requires
     ${app_requires}
     esp_bootloader_format
     nvs_flash
@@ -43,7 +43,7 @@ set(
     my_components_add
     one-cli-v0003
     onebutton-v0001
-    filesystem-v0001
+    filesystem-v0002
 )
 
 idf_component_register(
@@ -59,3 +59,8 @@ idf_component_register(
     WHOLE_ARCHIVE
 )
 
+
+# Note: you must have a partition named the first argument (here it's "littlefs")
+# in your partition table csv file.
+# littlefs_create_partition_image(littlefs littlefs_data FLASH_IN_PROJECT)
+# spiffs_create_partition_image(spiffs spiffs_data FLASH_IN_PROJECT)

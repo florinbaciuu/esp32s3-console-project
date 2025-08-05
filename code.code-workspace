@@ -256,7 +256,11 @@
 			"tasks_cmd.h": "c",
 			"uptime_cmd.h": "c",
 			"wifi_cmd.h": "c",
-			"perfmon_cmd.h": "c"
+			"perfmon_cmd.h": "c",
+			"esp_err.h": "c",
+			"stat.h": "c",
+			"defines.h": "c",
+			"stdbool.h": "c"
 		},
 		//------------------------------------------------------------------
 		"accessibility.underlineLinks": true,

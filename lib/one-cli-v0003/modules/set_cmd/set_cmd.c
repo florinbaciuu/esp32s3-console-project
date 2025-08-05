@@ -5,7 +5,7 @@
 #include "set_log.h"
 #include <string.h>
 
-static const char *TAG = "Set Command";
+static const char *TAG = "CLI";
 
 static struct {
     struct arg_str* subcommand;

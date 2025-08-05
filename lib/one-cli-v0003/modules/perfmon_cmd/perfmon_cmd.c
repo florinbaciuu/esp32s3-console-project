@@ -13,7 +13,7 @@
 #include "perfmon_cmd.h"
 
 
-static const char *TAG = "Perfmon Command";
+static const char *TAG = "CLI";
 
 static void exec_test_function(void *params)
 {

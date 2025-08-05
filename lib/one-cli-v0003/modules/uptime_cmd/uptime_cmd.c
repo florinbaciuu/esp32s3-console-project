@@ -9,7 +9,7 @@
 #include "esp_log.h"
 
 
-static const char *TAG = "Uptime Command";
+static const char *TAG = "CLI";
 
 static int uptime_command(int argc, char **argv)
 {

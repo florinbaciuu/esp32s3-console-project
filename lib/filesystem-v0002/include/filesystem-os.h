@@ -5,20 +5,16 @@
 #include "stdbool.h"
 #include "esp_err.h"
 
+#include "eMMC_fs.h"
+#include "FAT_fs.h"
+#include "LITTLE_fs.h"
+#include "SPIF_fs.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
 
 // PROTOTYPES
-esp_err_t initialize_filesystem_sdmmc();        // init SD MMC FAT Partition Filesystem
-esp_err_t deinitialize_filesystem_sdmmc();      // deinit SD MMC FAT Partition Filesystem
-
-esp_err_t initialize_internal_fat_filesystem(); // init internat FAT Partition Filesystem
-
-esp_err_t initialize_filesystem_spiffs();
-
-esp_err_t initialize_filesystem_littlefs() ;
-
 bool init_filesystem_sys();
 
 #ifdef __cplusplus

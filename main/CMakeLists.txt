@@ -43,7 +43,7 @@ set(
     my_components_add
     one-cli-v0003
     onebutton-v0001
-    filesystem-v0001
+    filesystem-v0002
 )
 
 idf_component_register(
@@ -62,5 +62,5 @@ idf_component_register(
 
 # Note: you must have a partition named the first argument (here it's "littlefs")
 # in your partition table csv file.
-littlefs_create_partition_image(littlefs littlefs_data FLASH_IN_PROJECT)
-spiffs_create_partition_image(spiffs spiffs_data FLASH_IN_PROJECT)
+# littlefs_create_partition_image(littlefs littlefs_data FLASH_IN_PROJECT)
+# spiffs_create_partition_image(spiffs spiffs_data FLASH_IN_PROJECT)

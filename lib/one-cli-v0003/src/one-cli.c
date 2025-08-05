@@ -4,19 +4,9 @@
 
 // include/command_line_interface.h
 #include "one-cli.h"
+#include "modules.h"
 
-// modules includes
-#include "modules/hello_cmd/hello_cmd.h"
-#include "modules/info_cmd/info_cmd.h"
-#include "modules/nvs_cmd/nvs_cmd.h"
-#include "modules/restart_cmd/restart_cmd.h"
-#include "modules/set_cmd/set_cmd.h"
-#include "modules/tasks_cmd/tasks_cmd.h"
-#include "modules/uptime_cmd/uptime_cmd.h"
-#include "modules/wifi_cmd/wifi_cmd.h"
-#include "modules/perfmon_cmd/perfmon_cmd.h"
-
-static const char* TAG = "OneCLI";
+static const char* TAG = "CLI";
 
 // -------------------------------------------------
 
@@ -48,11 +38,11 @@ static const char* florios_banner =
     " █████       █████░░██████  █████     █████ ░░░███████░  ░░█████████ \n"
     "░░░░░       ░░░░░  ░░░░░░  ░░░░░     ░░░░░    ░░░░░░░     ░░░░░░░░░  \n";
 
-TaskHandle_t OneCLI_xHandle;
+TaskHandle_t xHandle__CLI;
 
 void printStartupMessage() {
     // printf("\n%s\n", florios_banner);  // Afișează blazonul
-    // printf("\033[1;34m%s\033[0m\n", florios_banner); // albastru intens
+    printf("\033[1;34m%s\033[0m\n", florios_banner); // albastru intens
 
     printf(
         "\n"
@@ -183,14 +173,14 @@ void console_app(void* parameter) {
 // -------------------------------
 
 void StartCLI() {
-    if (OneCLI_xHandle == NULL)
+    if (xHandle__CLI == NULL)
     {
         xTaskCreatePinnedToCore(console_app,        // Functia care ruleaza task-ul
-            (const char*) "OneCLI xTask",           // Numele task-ului
-            (uint32_t) (14000),                     // Dimensiunea stack-ului
+            (const char*) "CLI Task",               // Numele task-ului
+            (uint32_t) (8192),                     // Dimensiunea stack-ului
             (NULL),                                 // Parametri
-            (UBaseType_t) configMAX_PRIORITIES - 5, // Prioritatea task-ului
-            &OneCLI_xHandle,                        // Handle-ul task-ului
+            (UBaseType_t) configMAX_PRIORITIES - 7, // Prioritatea task-ului
+            &xHandle__CLI,                          // Handle-ul task-ului
             ((0))                                   // Nucleul pe care ruleaza (ESP32 e dual-core)
         );
     }
