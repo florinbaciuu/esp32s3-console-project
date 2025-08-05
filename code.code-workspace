@@ -173,6 +173,7 @@
 		"terminal.integrated.defaultProfile.osx": "zsh",
 		//------------------------------------------------------------------
 		"files.associations": {
+			"*.cpp": "cpp",
 			"array": "cpp",
 			"chrono": "cpp",
 			"deque": "cpp",
@@ -244,7 +245,9 @@
 			"nvs_cmd.h": "c",
 			"set_log.h": "c",
 			"text_encoding": "c",
-			"typeinfo": "c"
+			"typeinfo": "c",
+			"esp_console.h": "c",
+			"argtable3.h": "c"
 		},
 		//------------------------------------------------------------------
 		"accessibility.underlineLinks": true,

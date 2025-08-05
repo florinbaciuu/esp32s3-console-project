@@ -43,6 +43,7 @@ set(
     my_components_add
     esp32s3-cli-v002
     onebutton-v001
+    filesystem-v001
 )
 
 idf_component_register(

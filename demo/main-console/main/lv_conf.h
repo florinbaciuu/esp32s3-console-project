@@ -9,6 +9,7 @@
  * * Then, modify the settings as needed.
  * * The library will automatically include this file during compilation.
  * Configuration file for v9.2.2
+ * Baciu Aurel Florin
  */
 
 /*
