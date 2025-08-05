@@ -22,6 +22,7 @@ add_compile_options(
 set(
    EXTRA_COMPONENT_DIRS
    lib
+   hal
 )
 
 
