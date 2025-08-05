@@ -221,6 +221,7 @@ extern "C" void app_main(void) {
 
     initialize_internal_fat_filesystem();
     initialize_filesystem_littlefs(); // aici e aici sa vedem ce se intampla
+    initialize_filesystem_spiffs();
     //// initialize_nvs();
     //// ESP_ERROR_CHECK(initialize_eeproom());
     vTaskDelay(pdMS_TO_TICKS(100));

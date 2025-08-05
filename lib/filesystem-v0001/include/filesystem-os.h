@@ -15,6 +15,8 @@ esp_err_t deinitialize_filesystem_sdmmc();      // deinit SD MMC FAT Partition F
 
 esp_err_t initialize_internal_fat_filesystem(); // init internat FAT Partition Filesystem
 
+esp_err_t initialize_filesystem_spiffs();
+
 esp_err_t initialize_filesystem_littlefs() ;
 
 bool init_filesystem_sys();

@@ -25,6 +25,7 @@ set(
     spi_flash
     fatfs
     littlefs
+    spiffs
 )
 
 idf_component_register(
