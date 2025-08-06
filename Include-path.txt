@@ -1,0 +1,6 @@
+${config:idf.espIdfPath}/components/**
+${config:idf.espIdfPathWin}/components/**
+${workspaceFolder}/**
+/Users/florinbaciu/Espressif/framework/esp-idf-v5.5/components/freertos/FreeRTOS-Kernel-SMP/portable/xtensa/include/freertos
+/Users/florinbaciu/Espressif/framework/esp-idf-v5.5/components/soc/esp32s3/register
+/Users/florinbaciu/Espressif/framework/esp-idf-v5.5/components/newlib/platform_include
