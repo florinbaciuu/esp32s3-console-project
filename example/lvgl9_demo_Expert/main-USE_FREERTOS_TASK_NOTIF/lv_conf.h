@@ -1,13 +1,5 @@
 ﻿/**
  * @file lv_conf.h
- * @brief
- * This is a configuration file for LVGL (Light and Versatile Graphics Library).
- * It contains various settings that control the behavior and features of the library.
- * You can customize these settings to suit your application needs.
- * * This file is not meant to be included directly in your project.
- * * Instead, copy it to your project directory and rename it to `lv_conf.h`.
- * * Then, modify the settings as needed.
- * * The library will automatically include this file during compilation.
  * Configuration file for v9.2.2
  */
 
@@ -65,7 +57,7 @@
 
 #if LV_USE_STDLIB_MALLOC == LV_STDLIB_BUILTIN
     /*Size of the memory available for `lv_malloc()` in bytes (>= 2kB)*/
-    #define LV_MEM_SIZE (1024 * 1024U)          /*[bytes]*/ // old 32 kb
+    #define LV_MEM_SIZE (64 * 1024U)          /*[bytes]*/ // old 32 kb
 
     /*Size of the memory expand for `lv_malloc()` in bytes*/
     #define LV_MEM_POOL_EXPAND_SIZE 0 // 0
@@ -100,7 +92,7 @@
  *(Not so important, you can adjust it to modify default sizes and spaces)*/
 //#define LV_DPI_DEF 142     /*[px/inch]*/
 //#define LV_DPI_DEF 190
-#define LV_DPI_DEF 143
+#define LV_DPI_DEF 130
 /*=================
  * OPERATING SYSTEM
  *=================*/
@@ -150,7 +142,7 @@
  * and can't be drawn in chunks. */
 
 /*The target buffer size for simple layer chunks.*/
-#define LV_DRAW_LAYER_SIMPLE_BUF_SIZE    (64 * 1024)   /*[bytes]*/ //24 old
+#define LV_DRAW_LAYER_SIMPLE_BUF_SIZE    (24 * 1024)   /*[bytes]*/ //24
 
 /* Limit the max allocated memory for simple and transformed layers.
  * It should be at least `LV_DRAW_LAYER_SIMPLE_BUF_SIZE` sized but if transformed layers are also used
@@ -161,7 +153,7 @@
 /* The stack size of the drawing thread.
  * NOTE: If FreeType or ThorVG is enabled, it is recommended to set it to 32KB or more.
  */
-#define LV_DRAW_THREAD_STACK_SIZE    (12 * 1024)   /*[bytes]*/ // 8 old
+#define LV_DRAW_THREAD_STACK_SIZE    (8 * 1024)   /*[bytes]*/ // 8
 
 /** Thread priority of the drawing task.
  *  Higher values mean higher priority.
@@ -215,13 +207,13 @@
         /*Allow buffering some shadow calculation.
         *LV_DRAW_SW_SHADOW_CACHE_SIZE is the max. shadow size to buffer, where shadow size is `shadow_width + radius`
         *Caching has LV_DRAW_SW_SHADOW_CACHE_SIZE^2 RAM cost*/
-        #define LV_DRAW_SW_SHADOW_CACHE_SIZE 16 // 0
+        #define LV_DRAW_SW_SHADOW_CACHE_SIZE 4 // 0
 
         /* Set number of maximally cached circle data.
         * The circumference of 1/4 circle are saved for anti-aliasing
         * radius * 4 bytes are used per circle (the most often used radiuses are saved)
         * 0: to disable caching */
-        #define LV_DRAW_SW_CIRCLE_CACHE_SIZE 16 // 4
+        #define LV_DRAW_SW_CIRCLE_CACHE_SIZE 4
     #endif
 
     #define  LV_USE_DRAW_SW_ASM     LV_DRAW_SW_ASM_NONE
@@ -231,7 +223,7 @@
     #endif /* #if LV_USE_DRAW_SW_ASM == LV_DRAW_SW_ASM_CUSTOM */
 
     /* Enable drawing complex gradients in software: linear at an angle, radial or conical */
-    #define LV_USE_DRAW_SW_COMPLEX_GRADIENTS    1
+    #define LV_USE_DRAW_SW_COMPLEX_GRADIENTS    0
 #endif
 
 /*Use TSi's aka (Think Silicon) NemaGFX */
