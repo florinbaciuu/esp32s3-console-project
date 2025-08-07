@@ -68,7 +68,7 @@ void printStartupMessage() {
     }
     printf("🚀 Welcome, Commander. System is ready for input.\n");
     printf("💭 Remember: even the most powerful systems wait for a single command...\n");
-    return;
+    return; 
 }
 
 // -------------------------------
